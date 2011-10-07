@@ -24,6 +24,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.tacitknowledge.util.migration.MigrationException;
+import com.tacitknowledge.util.migration.MigrationTask;
 import com.tacitknowledge.util.migration.PatchInfoStore;
 import com.tacitknowledge.util.migration.jdbc.util.SqlUtil;
 
@@ -58,6 +59,9 @@ public class PatchTable implements PatchInfoStore
     
     /** Keeps track of table validation (see #createPatchesTableIfNeeded) */
     private boolean tableExistenceValidated = false;
+
+    /** Keeps track of the patch_runs table existence */
+    private boolean runsTableExistenceValidated = false;
     
     /**
      * Create a new <code>PatchTable</code>.
@@ -77,7 +81,7 @@ public class PatchTable implements PatchInfoStore
     /** {@inheritDoc} */
     public void createPatchStoreIfNeeded() throws MigrationException
     {
-        if (tableExistenceValidated)
+        if (tableExistenceValidated && runsTableExistenceValidated)
         {
             return;
         }
@@ -88,7 +92,7 @@ public class PatchTable implements PatchInfoStore
         try
         {
             conn = context.getConnection();
-            
+
             stmt = conn.prepareStatement(getSql("level.read"));
             stmt.setString(1, context.getSystemName());
             rs = stmt.executeQuery();
@@ -97,34 +101,32 @@ public class PatchTable implements PatchInfoStore
         }
         catch (SQLException e)
         {
-            // logging error in case it's not a simple patch table doesn't exist error
-            log.debug(e.getMessage());   
             SqlUtil.close(null, stmt, rs);
-            
-            // check connection is valid before using, because the getConnection() call
-            // could have thrown the SQLException
-            if (null == conn)
-            {
-                throw new MigrationException("Unable to create a connection.", e);
-            }
-
-            log.info("'patches' table must not exist; creating....");
-            try
-            {
-                stmt = conn.prepareStatement(getSql("patches.create"));
-                if (log.isDebugEnabled())
-                {
-                    log.debug("Creating patches table with SQL '" + getSql("patches.create") + "'");
-                }
-                stmt.execute();
-                context.commit();
-            }
-            catch (SQLException sqle)
-            {
-                throw new MigrationException("Unable to create patch table", sqle);
-            }
+            createTrackingTable("patches", conn, "patches.create", e);
             tableExistenceValidated = true;
-            log.info("Created 'patches' table.");
+        }
+        catch (Exception ex)
+        {
+            throw new MigrationException("Unexpected exception while creating patch store.", ex);
+        }
+        finally
+        {
+            SqlUtil.close(conn, stmt, rs);
+        }
+
+        try
+        {
+            conn = context.getConnection();
+            stmt = conn.prepareStatement(getSql("run.check"));
+            rs = stmt.executeQuery();
+            log.debug("'patches_run' table already exists.");
+            runsTableExistenceValidated = true;
+        }
+        catch (SQLException e)
+        {
+            SqlUtil.close(null, stmt, rs);
+            createTrackingTable("patch_runs", conn, "patch_runs.create", e);
+            runsTableExistenceValidated = true;
         }
         catch (Exception ex)
         {
@@ -251,6 +253,61 @@ public class PatchTable implements PatchInfoStore
         updatePatchLock(false);
     }
 
+    /** {@inheritDoc} */
+    public void recordPatchStart(MigrationTask task) throws MigrationException
+    {
+        createPatchStoreIfNeeded();
+
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        try
+        {
+            conn = context.getConnection();
+            stmt = conn.prepareStatement(getSql("run.create"));
+            stmt.setString(1, context.getSystemName());
+            stmt.setString(2, context.getDatabaseName());
+            stmt.setInt(3, task.getLevel().intValue());
+            stmt.setString(4, task.getName());
+            stmt.execute();
+            context.commit();
+        }
+        catch (SQLException e)
+        {
+            throw new MigrationException("Unable to record patch start", e);
+        }
+        finally
+        {
+            SqlUtil.close(conn, stmt, null);
+        }
+    }
+
+    /** {@inheritDoc} */
+    public void recordPatchStop(MigrationTask task) throws MigrationException
+    {
+        createPatchStoreIfNeeded();
+
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        try
+        {
+            conn = context.getConnection();
+            stmt = conn.prepareStatement(getSql("run.update"));
+            stmt.setString(1, context.getSystemName());
+            stmt.setString(2, context.getDatabaseName());
+            stmt.setInt(3, task.getLevel().intValue());
+            stmt.execute();
+            context.commit();
+        }
+        catch (SQLException e)
+        {
+            throw new MigrationException("Unable to record patch stop", e);
+        }
+        finally
+        {
+            SqlUtil.close(conn, stmt, null);
+        }
+    }
+
     /**
      * Returns the SQL to execute for the database type associated with this patch table.
      * 
@@ -326,6 +383,51 @@ public class PatchTable implements PatchInfoStore
         finally
         {
             SqlUtil.close(conn, stmt, null);
+        }
+    }
+
+    /**
+     * Create the tables used to track patch information. Merely a means to avoid duplicating code.
+     *
+     * @param tableName a human-readable name for the table for logging purposes
+     * @param conn the Connection to use for the table creation
+     * @param sqlKey the key into the DatabaseType for the DDL to use to create the table
+     * @param triggerException the exception that caused this table creation for logging purposes
+     * @throws MigrationException if an unrecoverable database error occurs
+     */
+    private void createTrackingTable(String tableName, Connection conn, String sqlKey, SQLException triggerException)
+        throws MigrationException
+    {
+        // logging error in case it's not a simple patch table doesn't exist error
+        log.debug(triggerException.getMessage());
+
+        // check connection is valid before using, because the getConnection() call
+        // could have thrown the SQLException
+        if (null == conn)
+        {
+            throw new MigrationException("Unable to create a connection.", triggerException);
+        }
+
+        log.info("'" + tableName + "' table must not exist; creating....");
+        PreparedStatement stmt = null;
+        try
+        {
+            stmt = conn.prepareStatement(getSql(sqlKey));
+            if (log.isDebugEnabled())
+            {
+                log.debug("Creating " + tableName + " table with SQL '" + getSql(sqlKey) + "'");
+            }
+            stmt.execute();
+            context.commit();
+            log.info("Created '" + tableName + "' table.");
+        }
+        catch (SQLException sqle)
+        {
+            throw new MigrationException("Unable to create " + tableName + " table", sqle);
+        }
+        finally
+        {
+            SqlUtil.close(null, stmt, null);
         }
     }
 }

@@ -104,6 +104,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         // Test-specific setup
         PreparedStatementResultSetHandler h = conn.getPreparedStatementResultSetHandler();
         h.prepareThrowsSQLException(table.getSql("level.read"));
+        h.prepareThrowsSQLException(table.getSql("run.check"));
         
         table.createPatchStoreIfNeeded();
         
@@ -113,6 +114,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         verifyCommitted();
         verifyPreparedStatementParameter(0, 1, "milestone");
         verifySQLStatementExecuted(table.getSql("patches.create"));
+        verifySQLStatementExecuted(table.getSql("patch_runs.create"));
     }
     
     /**
@@ -178,7 +180,10 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         PreparedStatementResultSetHandler h = conn.getPreparedStatementResultSetHandler();
         MockResultSet rs = h.createResultSet();
         rs.addRow(new Integer[] {new Integer(13)});
-        h.prepareGlobalResultSet(rs);
+        h.prepareResultSet(table.getSql("level.read"), rs);
+        rs = h.createResultSet();
+        rs.addRow(new Integer[] {new Integer(1)});
+        h.prepareResultSet(table.getSql("run.check"), rs);
 
         int i = table.getPatchLevel();
 
@@ -187,7 +192,8 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         verifyAllStatementsClosed();
         verifyConnectionClosed();
         verifyNotCommitted();
-        verifyPreparedStatementParameter(1, 1, "milestone");
+        verifyPreparedStatementParameter(0, 1, "milestone"); // for createPatchStoreIfNeeded
+        verifyPreparedStatementParameter(2, 1, "milestone"); // for getPatchLevel
         verifyPreparedStatementNotPresent(table.getSql("level.create"));
     }
 

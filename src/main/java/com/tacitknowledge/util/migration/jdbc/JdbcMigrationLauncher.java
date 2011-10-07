@@ -402,6 +402,17 @@ public class JdbcMigrationLauncher implements RollbackListener
     public void migrationStarted(MigrationTask task, MigrationContext ctx) throws MigrationException
     {
         log.debug("Started task " + task.getName() + " for context " + ctx);
+        // Record start time
+        for (Iterator patchTableIter = contexts.keySet().iterator(); patchTableIter.hasNext();)
+        {
+            MigrationContext context = (MigrationContext) patchTableIter.next();
+            // Only record start time for the context in which the task was run
+            if (context == ctx)
+            {
+                PatchInfoStore store = (PatchInfoStore) contexts.get(context);
+                store.recordPatchStart(task);
+            }
+        }
     }
     
     /** {@inheritDoc} */
@@ -411,13 +422,20 @@ public class JdbcMigrationLauncher implements RollbackListener
         int patchLevel = task.getLevel().intValue();
         
         // update all of our controlled patch tables
-        for (Iterator patchTableIter = contexts.entrySet().iterator(); patchTableIter.hasNext();)
+        for (Iterator patchTableIter = contexts.keySet().iterator(); patchTableIter.hasNext();)
         {
-            PatchInfoStore store = (PatchInfoStore) ((Map.Entry) patchTableIter.next()).getValue();
+            MigrationContext context = (MigrationContext) patchTableIter.next();
+            PatchInfoStore store = (PatchInfoStore) contexts.get(context);
             int storePatchLevel = store.getPatchLevel();
             if (patchLevel > storePatchLevel)
             {
                 store.updatePatchLevel(patchLevel);
+            }
+            // Record duration of patch in the database, after the level has been upgraded,
+            // only for the context in which the task was run
+            if (context == ctx)
+            {
+                store.recordPatchStop(task);
             }
         }
     }

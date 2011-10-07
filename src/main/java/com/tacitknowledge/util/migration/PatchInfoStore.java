@@ -68,5 +68,18 @@ public interface PatchInfoStore
      * @exception MigrationException if unlocking the store fails 
      */
     public void unlockPatchStore() throws MigrationException;
-    
+
+    /**
+     * Records info about the patch starting in the patch store
+     *
+     * @param task the MigrationTask to log info about
+     */
+    public void recordPatchStart(MigrationTask task) throws MigrationException;
+
+    /**
+     * Records info about the patch stopping in the patch store
+     *
+     * @param task the MigrationTask to log info about
+     */
+    public void recordPatchStop(MigrationTask task) throws MigrationException;
 }

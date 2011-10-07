@@ -158,20 +158,44 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase
         patchStore.isPatchStoreLocked();
         mockControl.setReturnValue(false);
         patchStore.getPatchLevel();
-        mockControl.setReturnValue(2, MockControl.ONE_OR_MORE);
+        mockControl.setReturnValue(2);
         patchStore.lockPatchStore();
+
         patchStore.getPatchLevel();
-        mockControl.setReturnValue(2, MockControl.ONE_OR_MORE);
+        mockControl.setReturnValue(2);
+
+        patchStore.recordPatchStart(null);
+        mockControl.setMatcher(MockControl.ALWAYS_MATCHER);
+        patchStore.getPatchLevel();
+        mockControl.setReturnValue(2);
         patchStore.updatePatchLevel(4);
+        patchStore.recordPatchStop(null);
+        mockControl.setMatcher(MockControl.ALWAYS_MATCHER);
+
+        patchStore.recordPatchStart(null);
+        mockControl.setMatcher(MockControl.ALWAYS_MATCHER);
         patchStore.getPatchLevel();
         mockControl.setReturnValue(4);
         patchStore.updatePatchLevel(5);
+        patchStore.recordPatchStop(null);
+        mockControl.setMatcher(MockControl.ALWAYS_MATCHER);
+
+        patchStore.recordPatchStart(null);
+        mockControl.setMatcher(MockControl.ALWAYS_MATCHER);
         patchStore.getPatchLevel();
         mockControl.setReturnValue(5);
         patchStore.updatePatchLevel(6);
+        patchStore.recordPatchStop(null);
+        mockControl.setMatcher(MockControl.ALWAYS_MATCHER);
+
+        patchStore.recordPatchStart(null);
+        mockControl.setMatcher(MockControl.ALWAYS_MATCHER);
         patchStore.getPatchLevel();
         mockControl.setReturnValue(6);
         patchStore.updatePatchLevel(7);
+        patchStore.recordPatchStop(null);
+        mockControl.setMatcher(MockControl.ALWAYS_MATCHER);
+
         // getPatchLevel() not called, but in case code changes in future, it will report the
         // correct level.
         patchStore.getPatchLevel();
@@ -226,19 +250,41 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase
         mockControl.setReturnValue(2);
         patchStore.lockPatchStore();
         
+        patchStore.getPatchLevel();
+        mockControl.setReturnValue(2);
+
         // now the migrations proceed
+        patchStore.recordPatchStart(null);
+        mockControl.setMatcher(MockControl.ALWAYS_MATCHER);
         patchStore.getPatchLevel();
         mockControl.setReturnValue(2, MockControl.ONE_OR_MORE);
         patchStore.updatePatchLevel(4);
+        patchStore.recordPatchStop(null);
+        mockControl.setMatcher(MockControl.ALWAYS_MATCHER);
+
+        patchStore.recordPatchStart(null);
+        mockControl.setMatcher(MockControl.ALWAYS_MATCHER);
         patchStore.getPatchLevel();
         mockControl.setReturnValue(4, MockControl.ONE_OR_MORE);
         patchStore.updatePatchLevel(5);
+        patchStore.recordPatchStop(null);
+        mockControl.setMatcher(MockControl.ALWAYS_MATCHER);
+
+        patchStore.recordPatchStart(null);
+        mockControl.setMatcher(MockControl.ALWAYS_MATCHER);
         patchStore.getPatchLevel();
         mockControl.setReturnValue(5, MockControl.ONE_OR_MORE);
         patchStore.updatePatchLevel(6);
+        patchStore.recordPatchStop(null);
+        mockControl.setMatcher(MockControl.ALWAYS_MATCHER);
+
+        patchStore.recordPatchStart(null);
+        mockControl.setMatcher(MockControl.ALWAYS_MATCHER);
         patchStore.getPatchLevel();
         mockControl.setReturnValue(6, MockControl.ONE_OR_MORE);
         patchStore.updatePatchLevel(7);
+        patchStore.recordPatchStop(null);
+        mockControl.setMatcher(MockControl.ALWAYS_MATCHER);
         // getPatchLevel() not called, but in case code changes in future, it will report the
         // correct level.
         patchStore.getPatchLevel();

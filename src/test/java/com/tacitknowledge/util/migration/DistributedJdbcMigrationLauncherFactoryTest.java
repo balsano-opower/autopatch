@@ -111,6 +111,9 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
                 PatchInfoStore patchInfoStore = (PatchInfoStore) patchInfoStoreControl.getMock();
                 patchInfoStore.getPatchLevel();
                 patchInfoStoreControl.setReturnValue(levelToReport);
+                patchInfoStore.recordPatchStart(null);
+                patchInfoStoreControl.setMatcher(MockControl.ALWAYS_MATCHER);
+                patchInfoStoreControl.setVoidCallable(4);
                 patchInfoStoreControl.replay();
                 launcher.getContexts().put(ctx, patchInfoStore);
             }
@@ -236,7 +239,15 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
             MigrationProcess subProcess = subLauncher.getMigrationProcess();
             assertEquals(1, subProcess.getListeners().size());
         }
-        
+
+        for (Iterator contextIter = launcher.getContexts().keySet().iterator(); contextIter.hasNext();)
+        {
+            MigrationContext ctx = (MigrationContext) contextIter.next();
+            MockControl piStoreControl = MockControl.createNiceControl(PatchInfoStore.class);
+            PatchInfoStore piStore = (PatchInfoStore) piStoreControl.getMock();
+            launcher.getContexts().put(ctx, piStore);
+        }
+
         // Now do the migrations, and make sure we get the right number of events
         DistributedMigrationProcess process = (DistributedMigrationProcess) launcher.getMigrationProcess();
         int currentPatchlevel = 3;
@@ -258,6 +269,14 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
         HashMap controlledSystems = 
             ((DistributedMigrationProcess) launcher.getMigrationProcess()).getControlledSystems();
         
+        for (Iterator contextIter = launcher.getContexts().keySet().iterator(); contextIter.hasNext();)
+        {
+            MigrationContext ctx = (MigrationContext) contextIter.next();
+            MockControl piStoreControl = MockControl.createNiceControl(PatchInfoStore.class);
+            PatchInfoStore piStore = (PatchInfoStore) piStoreControl.getMock();
+            launcher.getContexts().put(ctx, piStore);
+        }
+
         // set the patch info store to report the current patch level
         setReportedPatchLevel(controlledSystems.values(), currentPatchLevel);
         // Now do the migrations, and make sure we get the right number of events

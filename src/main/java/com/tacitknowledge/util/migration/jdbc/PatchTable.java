@@ -127,9 +127,6 @@ public class PatchTable implements PatchInfoStore
                 }
                 stmt.execute();
                 context.commit();
-
-                // We don't yet have a patch record for this system; create one
-                createSystemPatchRecord();
             }
             catch (SQLException sqle)
             {
@@ -146,6 +143,20 @@ public class PatchTable implements PatchInfoStore
         {
             SqlUtil.close(conn, stmt, rs);
         }
+
+        try {
+            // We don't yet have a patch record for this system; create one
+            createSystemPatchRecord();
+        }
+        catch (Exception ex)
+        {
+            throw new MigrationException("Unexpected exception while creating system record.", ex);
+        }
+        finally
+        {
+            SqlUtil.close(conn, stmt, rs);
+        }
+
     }
 
     /**
@@ -357,14 +368,26 @@ public class PatchTable implements PatchInfoStore
         String systemName = context.getSystemName();
         Connection conn = null;
         PreparedStatement stmt = null;
+        ResultSet rs = null;
         try
         {
             conn = context.getConnection();
-            stmt = conn.prepareStatement(getSql("level.create"));
+            stmt = conn.prepareStatement(getSql("level.created"));
             stmt.setString(1, systemName);
-            stmt.execute();
-            context.commit();
-            log.info("Created patch record for " + systemName);
+            rs = stmt.executeQuery();
+            rs.next();
+            if (rs.getInt(1) == 0)
+            {
+                SqlUtil.close(null, stmt, null);
+                stmt = conn.prepareStatement(getSql("level.create"));
+                stmt.setString(1, systemName);
+                stmt.execute();
+                context.commit();
+                log.info("Created patch record for " + systemName);
+            } else
+            {
+                log.debug("Patch record already existed for " + systemName);
+            }
         }
         catch (SQLException e)
         {
@@ -373,7 +396,7 @@ public class PatchTable implements PatchInfoStore
         }
         finally
         {
-            SqlUtil.close(conn, stmt, null);
+            SqlUtil.close(conn, stmt, rs);
         }
     }
 
@@ -398,7 +421,7 @@ public class PatchTable implements PatchInfoStore
             stmt = conn.prepareStatement(getSql(sqlkey));
             if (log.isDebugEnabled())
             {
-                log.debug("Updating patch table lock: " + getSql(sqlkey));
+                log.debug("Updating patch table lock for system " + context.getSystemName() + ": " + getSql(sqlkey));
             }
             stmt.setString(1, context.getSystemName());
             if (lock)

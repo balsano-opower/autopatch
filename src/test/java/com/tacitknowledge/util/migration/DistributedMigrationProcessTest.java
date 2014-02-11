@@ -93,11 +93,11 @@ public class DistributedMigrationProcessTest extends TestCase
         migrationProcess.setMigrationRunnerStrategy(migrationRunnerStrategy);
 
         // create the launcher's contexts collection
-        LinkedHashMap contexts = new LinkedHashMap();
+        LinkedHashMap<JdbcMigrationContext, PatchInfoStore> contexts = new LinkedHashMap<JdbcMigrationContext, PatchInfoStore>();
         contexts.put(context, patchInfoStore);
         launcher.setContexts(contexts);
         
-        HashMap controlledSystems = new HashMap();
+        HashMap<String, JdbcMigrationLauncher> controlledSystems = new HashMap<String, JdbcMigrationLauncher>();
         controlledSystems.put(systemName, launcher);
         
         migrationProcess.setControlledSystems(controlledSystems);
@@ -137,12 +137,12 @@ public class DistributedMigrationProcessTest extends TestCase
         node2ContextControl.replay();
 
         // create the launcher's contexts collection
-        LinkedHashMap contexts = new LinkedHashMap();
+        LinkedHashMap<JdbcMigrationContext, PatchInfoStore> contexts = new LinkedHashMap<JdbcMigrationContext, PatchInfoStore>();
         contexts.put(node1Context, node1PatchInfoStore);
         contexts.put(node2Context, node2PatchInfoStore);
         launcher.setContexts(contexts);
         
-        HashMap controlledSystems = new HashMap();
+        HashMap<String, JdbcMigrationLauncher> controlledSystems = new HashMap<String, JdbcMigrationLauncher>();
         controlledSystems.put(systemName, launcher);
         
         migrationProcess.setControlledSystems(controlledSystems);
@@ -192,7 +192,7 @@ public class DistributedMigrationProcessTest extends TestCase
         MigrationProcess migrationProcessMock = mockControl.createMock(MigrationProcess.class);
         expect(migrationProcessMock.getMigrationTasks()).andReturn(migrationTaskList);
 
-        HashMap controlledSystems = new HashMap();
+        HashMap<String, JdbcMigrationLauncher> controlledSystems = new HashMap<String, JdbcMigrationLauncher>();
         controlledSystems.put(systemName, launcher);
         launcher.setMigrationProcess(migrationProcessMock);
 
@@ -206,7 +206,7 @@ public class DistributedMigrationProcessTest extends TestCase
         rollbackCandidates.add(rollbackableTask3);
 
         expect(migrationRunnerStrategyMock.getRollbackCandidates(migrationTaskList, rollbackLevels, patchInfoStoreMock)).andReturn(rollbackCandidates);
-        expect(migrationRunnerStrategyMock.getRollbackCandidates(rollbackCandidates, rollbackLevels, patchInfoStoreMock)).andReturn(Collections.EMPTY_LIST);
+        expect(migrationRunnerStrategyMock.getRollbackCandidates(rollbackCandidates, rollbackLevels, patchInfoStoreMock)).andReturn(Collections.<MigrationTask> emptyList());
 
         mockControl.replay();
 

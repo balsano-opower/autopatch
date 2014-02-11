@@ -150,7 +150,7 @@ public abstract class SqlLoadMigrationTask extends MigrationTaskSupport
      */
     protected List getData(InputStream is) throws IOException
     {
-        List data = new ArrayList();
+        List<String> data = new ArrayList<String>();
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         String line = null;
         while ((line = reader.readLine()) != null)

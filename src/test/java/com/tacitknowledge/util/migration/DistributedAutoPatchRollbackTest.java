@@ -247,7 +247,7 @@ public class DistributedAutoPatchRollbackTest extends MigrationListenerTestBase
         expect(migrationRunnerStrategyMock.getRollbackCandidates(EasyMock.<List<MigrationTask>>anyObject(),
                 eq(ROLLBACK_LEVELS), eq(currentPatchInfoStore))).andReturn(rollbackCandidates);
         expect(migrationRunnerStrategyMock.getRollbackCandidates(rollbackCandidates,
-                ROLLBACK_LEVELS, currentPatchInfoStore)).andReturn(Collections.EMPTY_LIST);
+                ROLLBACK_LEVELS, currentPatchInfoStore)).andReturn(Collections.<MigrationTask> emptyList());
 
         expect(migrationRunnerStrategyMock.isSynchronized(eq(currentPatchInfoStore),
                 EasyMock.<PatchInfoStore>anyObject())).andReturn(true).anyTimes();
@@ -318,7 +318,7 @@ public class DistributedAutoPatchRollbackTest extends MigrationListenerTestBase
             JdbcMigrationLauncher launcher = (JdbcMigrationLauncher) launchersIterator.next();
             for(Iterator it = launcher.getContexts().keySet().iterator(); it.hasNext(); )
             {
-                MigrationContext ctx = (MigrationContext) it.next();
+                JdbcMigrationContext ctx = (JdbcMigrationContext) it.next();
                 IMocksControl patchInfoStoreControl = createStrictControl();
                 PatchInfoStore patchInfoStore = patchInfoStoreControl.createMock(PatchInfoStore.class);
                 expect(patchInfoStore.getPatchLevel()).andReturn(levelToReport);

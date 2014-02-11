@@ -148,7 +148,7 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase {
         rollbackMigrationProcessMock.addMigrationTaskSource(EasyMock.<MigrationTaskSource>anyObject());
         expect(rollbackMigrationProcessMock.doPostPatchMigrations(contextMock)).andReturn(migrationTasksExecuted);
 
-        LinkedHashMap contexts=new LinkedHashMap();
+        LinkedHashMap<JdbcMigrationContext, PatchInfoStore> contexts=new LinkedHashMap<JdbcMigrationContext, PatchInfoStore>();
         contexts.put(contextMock, patchInfoStoreMock);
         rollbackLauncher.setContexts(contexts);
 
@@ -337,7 +337,7 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase {
         PatchInfoStore node1PatchInfoStore = node1PatchInfoStoreControl.createMock(PatchInfoStore.class);
         PatchInfoStore node2PatchInfoStore = node2PatchInfoStoreControl.createMock(PatchInfoStore.class);
 
-        LinkedHashMap contexts = new LinkedHashMap();
+        LinkedHashMap<JdbcMigrationContext, PatchInfoStore> contexts = new LinkedHashMap<JdbcMigrationContext, PatchInfoStore>();
         contexts.put(node1Context, node1PatchInfoStore);
         contexts.put(node2Context, node2PatchInfoStore);
         launcher.setContexts(contexts);

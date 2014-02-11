@@ -75,13 +75,13 @@ public class MigrationProcess
      * The list of package names containing the <code>MigrationTask</code>s
      * and SQL scripts to execute as patches
      */
-    private List patchResourcePackages = new ArrayList();
+    private List<String> patchResourcePackages = new ArrayList<String>();
 
     /**
      * The list of package names containing <code>MigrationTask</code>s and
      * SQL scripts to execute after patch execution
      */
-    private List postPatchResourcePackages = new ArrayList();
+    private List<String> postPatchResourcePackages = new ArrayList<String>();
 
     /**
      * Migration task providers
@@ -398,7 +398,7 @@ public class MigrationProcess
     public int doPostPatchMigrations(MigrationContext context) throws MigrationException
     {
         log.info("Running post-patch tasks...");
-        List postMigrationTasks = getPostPatchMigrationTasks();
+        List<MigrationTask> postMigrationTasks = getPostPatchMigrationTasks();
         validateTasks(postMigrationTasks);
         Collections.sort(postMigrationTasks);
 
@@ -561,7 +561,7 @@ public class MigrationProcess
      * @return a list of all post-patch migration tasks
      * @throws MigrationException if one or more post-patch migration tasks could not be created
      */
-    public List getPostPatchMigrationTasks() throws MigrationException
+    public List<MigrationTask> getPostPatchMigrationTasks() throws MigrationException
     {
         return getTasksFromPackages(postPatchResourcePackages);
     }
@@ -576,7 +576,7 @@ public class MigrationProcess
      */
     private List<MigrationTask> getTasksFromPackages(List<String> resourcePackages) throws MigrationException
     {
-        List tasks = new ArrayList();
+        List<MigrationTask> tasks = new ArrayList<MigrationTask>();
         for (String packageName : resourcePackages)
         {
             log.debug("Searching for patch tasks in package " + packageName);
@@ -620,7 +620,7 @@ public class MigrationProcess
     public int getPreviousPatchLevel(int currentLevel) throws MigrationException
     {
         boolean isCurrentPatchFound = false;
-        List tasks = getMigrationTasks();
+        List<MigrationTask> tasks = getMigrationTasks();
         int previousTaskLevel = 0;
 
         Collections.sort(tasks);
@@ -656,7 +656,7 @@ public class MigrationProcess
      */
     public int getNextPatchLevel() throws MigrationException
     {
-        List tasks = getMigrationTasks();
+        List<MigrationTask> tasks = getMigrationTasks();
 
         if (tasks.size() == 0)
         {
@@ -701,7 +701,7 @@ public class MigrationProcess
      *
      * @return List of MigrationListeners
      */
-    public List getListeners()
+    public List<MigrationListener> getListeners()
     {
         return broadcaster.getListeners();
     }
@@ -723,9 +723,9 @@ public class MigrationProcess
      * @param migrations the list of defined migration tasks
      * @throws MigrationException if the migration tasks are not correctly defined
      */
-    public void validateTasks(List migrations) throws MigrationException
+    public void validateTasks(List<MigrationTask> migrations) throws MigrationException
     {
-        Map usedOrderNumbers = new HashMap();
+        Map<Integer, MigrationTask> usedOrderNumbers = new HashMap<Integer, MigrationTask>();
         for (Iterator i = migrations.iterator(); i.hasNext();)
         {
             MigrationTask task = (MigrationTask) i.next();

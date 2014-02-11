@@ -42,7 +42,7 @@ public interface MigrationRunnerStrategy
      *
      * @param currentPatchInfoStore
      * @param patchInfoStore
-     * @return
+     * @return boolean value telling us if two stores are synchronized
      * @throws MigrationException
      */
     public boolean isSynchronized(PatchInfoStore currentPatchInfoStore, PatchInfoStore patchInfoStore) throws MigrationException;
@@ -53,7 +53,7 @@ public interface MigrationRunnerStrategy
      * @param allMigrationTasks
      * @param rollbackLevels
      * @param currentPatchInfoStore
-     * @return
+     * @return List<MigrationTask> list of MigrationTask objects which are candidates for rollback
      * @throws MigrationException
      */
     public List<MigrationTask> getRollbackCandidates(List<MigrationTask> allMigrationTasks, int[] rollbackLevels, PatchInfoStore currentPatchInfoStore) throws MigrationException;

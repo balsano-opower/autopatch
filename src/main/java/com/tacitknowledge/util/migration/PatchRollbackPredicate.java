@@ -53,8 +53,7 @@ public class PatchRollbackPredicate implements Predicate
      * </ul>
      *
      * @param obj the Object to be evaluated
-     * @boolean a boolean indicating if the object falls within the valid range for
-     * this rollback
+     * @return boolean indicating if the object falls within the valid range for this rollback
      */
     public boolean evaluate(Object obj)
     {

@@ -30,7 +30,7 @@ public class TestMigrationContext extends DataSourceMigrationContext
     /**
      * A record of task executions
      */
-    private Map executionLog = new HashMap();
+    private Map<String, Boolean> executionLog = new HashMap<String, Boolean>();
     
     /**
      * Records a successful task execution

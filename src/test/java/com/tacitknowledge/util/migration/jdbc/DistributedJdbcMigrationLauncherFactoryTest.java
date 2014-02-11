@@ -114,7 +114,7 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
             JdbcMigrationLauncher launcher = (JdbcMigrationLauncher) launchersIterator.next();
             for (Iterator it = launcher.getContexts().keySet().iterator(); it.hasNext(); )
             {
-                MigrationContext ctx = (MigrationContext) it.next();
+                JdbcMigrationContext ctx = (JdbcMigrationContext) it.next();
 
                 launcher.getContexts().put(ctx, MockBuilder.getPatchInfoStore(levelToReport));
             }

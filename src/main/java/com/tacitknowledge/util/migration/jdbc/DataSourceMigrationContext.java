@@ -205,8 +205,9 @@ public class DataSourceMigrationContext implements JdbcMigrationContext
     }
 
     /**
-     * @override {@link JdbcMigrationContext#getDatabaseName()}
+     * {@inheritDoc}
      */
+    @Override
     public String getDatabaseName()
     {
         return this.databaseName;

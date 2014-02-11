@@ -21,7 +21,7 @@ package com.tacitknowledge.util.migration;
  * @author Scott Askew (scott@tacitknowledge.com)
  * @author Artie Pesh-Imam (apeshimam@tacitknowledge.com)
  */
-public abstract class MigrationTaskSupport implements RollbackableMigrationTask
+public abstract class MigrationTaskSupport implements RollbackableMigrationTask, Comparable<MigrationTask>
 {
     protected boolean isRollbackSupported = false;
 
@@ -74,9 +74,8 @@ public abstract class MigrationTaskSupport implements RollbackableMigrationTask
     /**
      * {@inheritDoc}
      */
-    public int compareTo(Object o)
+    public int compareTo(MigrationTask task)
     {
-        MigrationTask task = (MigrationTask) o;
         if (task.getLevel() == null)
         {
             return 1;

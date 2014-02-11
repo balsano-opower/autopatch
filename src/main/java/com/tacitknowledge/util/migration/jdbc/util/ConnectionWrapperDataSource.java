@@ -104,7 +104,7 @@ public class ConnectionWrapperDataSource implements DataSource
     /**
      * {@inheritDoc}
      */
-    public boolean isWrapperFor(Class iface)
+    public boolean isWrapperFor(Class<?> iface)
     {
         return connection != null && iface.isAssignableFrom(connection.getClass());
     }
@@ -112,8 +112,8 @@ public class ConnectionWrapperDataSource implements DataSource
     /**
      * {@inheritDoc}
      */
-    public Object unwrap(Class iface)
+    public <T> T unwrap(Class<T> iface)
     {
-        return connection;
+        return iface.cast(connection);
     }
 }

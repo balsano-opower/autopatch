@@ -414,7 +414,7 @@ public class JdbcMigrationLauncherFactory
     {
         try
         {
-            List listeners = new ArrayList();
+            List<MigrationListener> listeners = new ArrayList<MigrationListener>();
             String[] listenerClassNames = null;
 
             String commaSeparatedList = properties.getProperty(systemName + ".listeners");

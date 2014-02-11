@@ -201,7 +201,7 @@ public class NonPooledDataSource implements DataSource
     /**
      * {@inheritDoc}
      */
-    public Object unwrap(Class iface)
+    public <T extends Object> T unwrap(Class<T> iface)
     {
         return null;
     }

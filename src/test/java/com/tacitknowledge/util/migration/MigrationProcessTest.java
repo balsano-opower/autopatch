@@ -129,11 +129,11 @@ public class MigrationProcessTest extends TestCase
         patchInfoStoreControl.verify();
     }
 
-    private List getMigrationTasks()
+    private List<MigrationTask> getMigrationTasks()
     {
         RollbackableMigrationTask migrationTask2 = new TestMigrationTask2();
         RollbackableMigrationTask migrationTask3 = new TestMigrationTask3();
-        List migrationsList = new ArrayList();
+        List<MigrationTask> migrationsList = new ArrayList<MigrationTask>();
         migrationsList.add(migrationTask2);
         migrationsList.add(migrationTask3);
         return migrationsList;
@@ -165,7 +165,7 @@ public class MigrationProcessTest extends TestCase
     public void testDoMigrationInReadOnlyWithZeroTasks() throws MigrationException
     {
         migrationProcess.setReadOnly(true);
-        expect(migrationTaskSourceMock.getMigrationTasks("testPackageName")).andReturn(new ArrayList());
+        expect(migrationTaskSourceMock.getMigrationTasks("testPackageName")).andReturn(new ArrayList<MigrationTask>());
         migrationTaskSourceControl.replay();
         migrationProcess.addMigrationTaskSource(migrationTaskSourceMock);
         expect(patchInfoStoreMock.getPatchLevel()).andReturn(0);

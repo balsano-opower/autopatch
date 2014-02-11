@@ -170,16 +170,16 @@ public class DistributedMigrationProcess extends MigrationProcess
      * @param context               information and resources that are available to the migration tasks
      * @return the number of <code>RollbackableMigrationTasks</code> which have been rolled back
      * @throws MigrationException if a rollback fails
-     * @Override
      */
+    @Override
     public final int doRollbacks(final PatchInfoStore currentPatchInfoStore, final int[] rollbackLevels, final MigrationContext context,
             boolean forceRollback) throws MigrationException
     {
         log.debug("Starting doRollbacks");
         // get all of the allTasks, with launchers, then get the list of just
         // allTasks
-        LinkedHashMap rollbacksWithLaunchers = getMigrationTasksWithLaunchers();
-        List allTasks = new ArrayList();
+        LinkedHashMap<MigrationTask, JdbcMigrationLauncher> rollbacksWithLaunchers = getMigrationTasksWithLaunchers();
+        List<MigrationTask> allTasks = new ArrayList<MigrationTask>();
         allTasks.addAll(rollbacksWithLaunchers.keySet());
 
         List<MigrationTask> rollbackCandidates = getMigrationRunnerStrategy().getRollbackCandidates(allTasks, rollbackLevels, currentPatchInfoStore);
@@ -248,16 +248,16 @@ public class DistributedMigrationProcess extends MigrationProcess
      * @param context        information and resources that are available to the migration tasks
      * @return the number of <code>MigrationTask</code>s that have executed
      * @throws MigrationException if a migration fails
-     * @Override
      */
+    @Override
     public final int doMigrations(final PatchInfoStore patchInfoStore,
             final MigrationContext context) throws MigrationException
     {
         log.debug("Starting doMigrations");
         // Get all the migrations, with their launchers, then get the list of
         // just the migrations
-        LinkedHashMap migrationsWithLaunchers = getMigrationTasksWithLaunchers();
-        List migrations = new ArrayList();
+        LinkedHashMap<MigrationTask, JdbcMigrationLauncher> migrationsWithLaunchers = getMigrationTasksWithLaunchers();
+        List<MigrationTask> migrations = new ArrayList<MigrationTask>();
         migrations.addAll(migrationsWithLaunchers.keySet());
 
         // make sure the migrations are okay, then sort them
@@ -316,7 +316,7 @@ public class DistributedMigrationProcess extends MigrationProcess
             // sync
             {
                 boolean patchesApplied = false;
-                ArrayList outOfSyncContexts = new ArrayList();
+                ArrayList<MigrationContext> outOfSyncContexts = new ArrayList<MigrationContext>();
 
                 // first need to iterate over all the contexts and determined
                 // which one's are out of sync.
@@ -414,9 +414,9 @@ public class DistributedMigrationProcess extends MigrationProcess
      *         pairings
      * @throws MigrationException if one or more migration tasks could not be created
      */
-    public final LinkedHashMap getMigrationTasksWithLaunchers() throws MigrationException
+    public final LinkedHashMap<MigrationTask, JdbcMigrationLauncher> getMigrationTasksWithLaunchers() throws MigrationException
     {
-        LinkedHashMap tasks = new LinkedHashMap();
+        LinkedHashMap<MigrationTask, JdbcMigrationLauncher> tasks = new LinkedHashMap<MigrationTask, JdbcMigrationLauncher>();
 
         // Roll through all our controlled system names
         for (Iterator controlledSystemIter = getControlledSystems().keySet().iterator(); controlledSystemIter
@@ -455,9 +455,9 @@ public class DistributedMigrationProcess extends MigrationProcess
      * @return List containing MigrationTask objects
      * @throws MigrationException if one or more migration tasks could not be created
      */
-    public final List getMigrationTasks() throws MigrationException
+    public final List<MigrationTask> getMigrationTasks() throws MigrationException
     {
-        List tasks = new ArrayList();
+        List<MigrationTask> tasks = new ArrayList<MigrationTask>();
 
         for (Iterator controlledSystemIter = getControlledSystems().keySet().iterator(); controlledSystemIter
                 .hasNext();)
@@ -465,7 +465,7 @@ public class DistributedMigrationProcess extends MigrationProcess
             String controlledSystemName = (String) controlledSystemIter.next();
             JdbcMigrationLauncher launcher = (JdbcMigrationLauncher) getControlledSystems().get(
                     controlledSystemName);
-            List subTasks = launcher.getMigrationProcess().getMigrationTasks();
+            List<MigrationTask> subTasks = launcher.getMigrationProcess().getMigrationTasks();
             log.info("Found " + subTasks.size() + " for system " + controlledSystemName);
             if (log.isDebugEnabled())
             {

@@ -20,7 +20,7 @@ package com.tacitknowledge.util.migration;
  *
  * @author Scott Askew (scott@tacitknowledge.com)
  */
-public interface MigrationTask extends Comparable
+public interface MigrationTask extends Comparable<MigrationTask>
 {
     /**
      * Performs a migration

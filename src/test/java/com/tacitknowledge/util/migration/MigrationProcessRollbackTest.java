@@ -94,7 +94,7 @@ public class MigrationProcessRollbackTest extends MigrationListenerTestBase
         rollbackCandidates.add(new TestRollbackableTask3());
         rollbackCandidates.add(new TestRollbackableTask2());
         expect(migrationStrategy.getRollbackCandidates(EasyMock.<List<MigrationTask>> anyObject(), eq(ROLLBACK_LEVELS), eq(currentPatchInfoStore))).andReturn(rollbackCandidates);
-        expect(migrationStrategy.getRollbackCandidates(EasyMock.<List<MigrationTask>> anyObject(), eq(ROLLBACK_LEVELS), eq(currentPatchInfoStore))).andReturn(Collections.EMPTY_LIST);
+        expect(migrationStrategy.getRollbackCandidates(EasyMock.<List<MigrationTask>> anyObject(), eq(ROLLBACK_LEVELS), eq(currentPatchInfoStore))).andReturn(Collections.<MigrationTask> emptyList());
 
     }
 

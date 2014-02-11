@@ -97,7 +97,7 @@ public class SqlScriptMigrationTaskSource implements MigrationTaskSource
      *         array of SQL scripts
      * @throws MigrationException if a SqlScriptMigrationTask could no be created
      */
-    private List createMigrationScripts(String[] upScripts, String[] downScripts)
+    private List<MigrationTask> createMigrationScripts(String[] upScripts, String[] downScripts)
             throws MigrationException
     {
         Pattern upFileNamePattern = Pattern.compile(SQL_PATCH_REGEX);

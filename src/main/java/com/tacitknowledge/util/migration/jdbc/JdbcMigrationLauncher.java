@@ -457,7 +457,7 @@ public class JdbcMigrationLauncher implements RollbackListener
      * @return Map of <code>JdbcMigrationContext</code> and
      *         <code>PatchInfoStore</code> objects used in the migrations
      */
-    public LinkedHashMap getContexts()
+    public LinkedHashMap<JdbcMigrationContext, PatchInfoStore> getContexts()
     {
         return contexts;
     }
@@ -719,7 +719,7 @@ public class JdbcMigrationLauncher implements RollbackListener
      *
      * @param contexts the collection of contexts that is a map of JDBCMigrationContext -> PatchInfoStore.
      */
-    public void setContexts(LinkedHashMap contexts)
+    public void setContexts(LinkedHashMap<JdbcMigrationContext, PatchInfoStore> contexts)
     {
         this.contexts = contexts;
     }

@@ -129,7 +129,7 @@ public class SybaseUtil
 
     static
     {
-        ArrayList list = new ArrayList();
+        ArrayList<Pattern> list = new ArrayList<Pattern>();
         list.add(ALTER_DATABASE_PATTERN);
         list.add(ALTER_TABLE_PATTERN);
         list.add(CREATE_DATABASE_PATTERN);

@@ -15,6 +15,7 @@
 
 package com.tacitknowledge.util.migration.jdbc;
 
+import com.tacitknowledge.util.migration.MigrationContext;
 import com.tacitknowledge.util.migration.MigrationException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -75,7 +76,7 @@ public class AutoPatchService extends JdbcMigrationLauncherFactory
     /**
      * A set of contexts, in case you want multi-node patches
      */
-    private List contexts = new ArrayList();
+    private List<MigrationContext> contexts = new ArrayList<MigrationContext>();
 
     /**
      * Patches the database, if necessary.
@@ -279,7 +280,7 @@ public class AutoPatchService extends JdbcMigrationLauncherFactory
      *
      * @param contexts List of JdbcMigrationContext objects for multi-node, or empty list
      */
-    public void setContexts(List contexts)
+    public void setContexts(List<MigrationContext> contexts)
     {
         this.contexts = contexts;
     }

@@ -440,7 +440,7 @@ public class PatchTable implements PatchInfoStore
         Connection connection = null;
         PreparedStatement stmt = null;
         ResultSet resultSet = null;
-        Set<Integer> patches = new HashSet<Integer>();
+        Set<Integer> patches = new HashSet<>();
         try
         {
             connection = context.getConnection();

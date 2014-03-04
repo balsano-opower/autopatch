@@ -103,7 +103,7 @@ public class SqlScriptMigrationTaskSource implements MigrationTaskSource
         Pattern upFileNamePattern = Pattern.compile(SQL_PATCH_REGEX);
         Pattern downFileNamePattern = Pattern.compile(SQL_ROLLBACK_REGEX);
 
-        List<MigrationTask> tasks = new ArrayList<MigrationTask>();
+        List<MigrationTask> tasks = new ArrayList<>();
         for (int i = 0; i < upScripts.length; i++)
         {
             String script = upScripts[i];

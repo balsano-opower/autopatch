@@ -60,7 +60,7 @@ public class ClassMigrationTaskSource implements MigrationTaskSource
      */
     private List<MigrationTask> instantiateTasks(Class[] taskClasses) throws MigrationException
     {
-        List<MigrationTask> tasks = new ArrayList<MigrationTask>();
+        List<MigrationTask> tasks = new ArrayList<>();
         for (int i = 0; i < taskClasses.length; i++)
         {
             Class taskClass = taskClasses[i];

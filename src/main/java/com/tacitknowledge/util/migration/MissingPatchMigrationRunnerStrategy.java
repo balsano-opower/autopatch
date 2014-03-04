@@ -60,7 +60,7 @@ public class MissingPatchMigrationRunnerStrategy implements MigrationRunnerStrat
         validateRollbackLevels(rollbackLevels);
 
         List<Integer> rollbacksLevelList = Arrays.asList(ArrayUtils.toObject(rollbackLevels));
-        List<MigrationTask> rollbackCandidates = new ArrayList<MigrationTask>();
+        List<MigrationTask> rollbackCandidates = new ArrayList<>();
 
 
         for (MigrationTask migrationTask : allMigrationTasks)

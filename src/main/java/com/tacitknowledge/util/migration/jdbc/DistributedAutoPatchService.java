@@ -105,7 +105,7 @@ public class DistributedAutoPatchService extends DistributedJdbcMigrationLaunche
         launcher.addContext(getContext());
 
         // Grab the controlled systems and subjugate them
-        HashMap<String, JdbcMigrationLauncher> controlledLaunchers = new HashMap<String, JdbcMigrationLauncher>();
+        HashMap<String, JdbcMigrationLauncher> controlledLaunchers = new HashMap<>();
         for (int i = 0; i < controlledSystems.length; i++)
         {
             AutoPatchService controlledSystem = controlledSystems[i];

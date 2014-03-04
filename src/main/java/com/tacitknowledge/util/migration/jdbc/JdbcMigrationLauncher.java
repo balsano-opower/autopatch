@@ -74,7 +74,7 @@ public class JdbcMigrationLauncher implements RollbackListener
      * The <code>MigrationContext</code> objects to use for all migrations.
      * Each one is the key in the map, with the PatchInfoStore being the value
      */
-    private LinkedHashMap<JdbcMigrationContext, PatchInfoStore> contexts = new LinkedHashMap<JdbcMigrationContext, PatchInfoStore>();
+    private LinkedHashMap<JdbcMigrationContext, PatchInfoStore> contexts = new LinkedHashMap<>();
 
     /**
      * Holds the migration strategy to use during migration process

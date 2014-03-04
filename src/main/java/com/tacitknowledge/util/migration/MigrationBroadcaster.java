@@ -48,7 +48,7 @@ class MigrationBroadcaster
     /**
      * The listeners interested in being notified of migration task events.
      */
-    private List<MigrationListener> listeners = new ArrayList<MigrationListener>();
+    private List<MigrationListener> listeners = new ArrayList<>();
 
     /**
      * Notifies all registered listeners of a migration task event.

@@ -240,7 +240,7 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
      */
     public List getSqlStatements(JdbcMigrationContext context, String sqlStatements)
     {
-        List<String> statements = new ArrayList<String>();
+        List<String> statements = new ArrayList<>();
         if (context.getDatabaseType().isMultipleStatementsSupported())
         {
             statements.add(sqlStatements);

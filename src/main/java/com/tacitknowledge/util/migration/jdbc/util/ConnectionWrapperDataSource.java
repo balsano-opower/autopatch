@@ -19,6 +19,7 @@ import javax.sql.DataSource;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.logging.Logger;
 
 /**
  * A partial <code>DataSource</code> implementation that simply wraps a single,
@@ -81,6 +82,14 @@ public class ConnectionWrapperDataSource implements DataSource
      * {@inheritDoc}
      */
     public void setLogWriter(PrintWriter arg0) throws UnsupportedOperationException
+    {
+        throw new UnsupportedOperationException(UNSUPPORTED_OPERATION_EXCEPTION_MSG);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Logger getParentLogger() throws UnsupportedOperationException
     {
         throw new UnsupportedOperationException(UNSUPPORTED_OPERATION_EXCEPTION_MSG);
     }

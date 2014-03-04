@@ -75,18 +75,18 @@ public class MigrationProcess
      * The list of package names containing the <code>MigrationTask</code>s
      * and SQL scripts to execute as patches
      */
-    private List<String> patchResourcePackages = new ArrayList<String>();
+    private List<String> patchResourcePackages = new ArrayList<>();
 
     /**
      * The list of package names containing <code>MigrationTask</code>s and
      * SQL scripts to execute after patch execution
      */
-    private List<String> postPatchResourcePackages = new ArrayList<String>();
+    private List<String> postPatchResourcePackages = new ArrayList<>();
 
     /**
      * Migration task providers
      */
-    private List<MigrationTaskSource> migrationTaskSources = new ArrayList<MigrationTaskSource>();
+    private List<MigrationTaskSource> migrationTaskSources = new ArrayList<>();
 
     /**
      * Used to broadcast migration task notifications
@@ -576,7 +576,7 @@ public class MigrationProcess
      */
     private List<MigrationTask> getTasksFromPackages(List<String> resourcePackages) throws MigrationException
     {
-        List<MigrationTask> tasks = new ArrayList<MigrationTask>();
+        List<MigrationTask> tasks = new ArrayList<>();
         for (String packageName : resourcePackages)
         {
             log.debug("Searching for patch tasks in package " + packageName);
@@ -725,7 +725,7 @@ public class MigrationProcess
      */
     public void validateTasks(List<MigrationTask> migrations) throws MigrationException
     {
-        Map<Integer, MigrationTask> usedOrderNumbers = new HashMap<Integer, MigrationTask>();
+        Map<Integer, MigrationTask> usedOrderNumbers = new HashMap<>();
         for (Iterator i = migrations.iterator(); i.hasNext();)
         {
             MigrationTask task = (MigrationTask) i.next();

@@ -76,7 +76,7 @@ public class FlatXmlDataSetTaskSource implements MigrationTaskSource
     private List<MigrationTask> createMigrationTasks(String[] xmlFiles) throws MigrationException
     {
         Pattern p = Pattern.compile(XML_PATCH_REGEX);
-        List<MigrationTask> tasks = new ArrayList<MigrationTask>();
+        List<MigrationTask> tasks = new ArrayList<>();
         for (int i = 0; i < xmlFiles.length; i++)
         {
             String xmlPathname = xmlFiles[i];

@@ -76,7 +76,7 @@ public class AutoPatchService extends JdbcMigrationLauncherFactory
     /**
      * A set of contexts, in case you want multi-node patches
      */
-    private List<MigrationContext> contexts = new ArrayList<MigrationContext>();
+    private List<MigrationContext> contexts = new ArrayList<>();
 
     /**
      * Patches the database, if necessary.

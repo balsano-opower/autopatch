@@ -135,7 +135,7 @@ public abstract class DelimitedFileLoader extends SqlLoadMigrationTask
             String columnHeader = getHeader(getResourceAsStream());
             String delimiter = getDelimiter();
             StringTokenizer st = new StringTokenizer(columnHeader, delimiter);
-            ArrayList<String> columnNames = new ArrayList<String>();
+            ArrayList<String> columnNames = new ArrayList<>();
             while (st.hasMoreTokens())
             {
                 columnNames.add((st.nextToken().trim()));

@@ -236,7 +236,7 @@ public class DistributedJdbcMigrationLauncherFactory extends JdbcMigrationLaunch
         launcher.addContext(context);
 
         // Get our controlled systems, and instantiate their launchers
-        HashMap<String, JdbcMigrationLauncher> controlledSystems = new HashMap<String, JdbcMigrationLauncher>();
+        HashMap<String, JdbcMigrationLauncher> controlledSystems = new HashMap<>();
         String[] controlledSystemNames =
                 ConfigurationUtil.getRequiredParam(props,
                         systemName + ".controlled.systems").split(",");

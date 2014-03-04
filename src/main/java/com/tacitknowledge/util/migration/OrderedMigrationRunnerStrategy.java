@@ -63,7 +63,7 @@ public class OrderedMigrationRunnerStrategy implements MigrationRunnerStrategy
 
         PatchRollbackPredicate rollbackPredicate = new PatchRollbackPredicate(currentPatchLevel,
                 rollbackLevel);
-        List<MigrationTask> migrationCandidates = new ArrayList<MigrationTask>();
+        List<MigrationTask> migrationCandidates = new ArrayList<>();
         migrationCandidates.addAll(allMigrationTasks);
         CollectionUtils.filter(migrationCandidates, rollbackPredicate);
         Collections.sort(migrationCandidates);

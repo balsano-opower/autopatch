@@ -91,7 +91,7 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
      */
     protected void tearDown() throws Exception
     {
-        System.clearProperty("migration.factory");
+        System.clearProperty(JdbcMigrationLauncherFactoryLoader.MIGRATION_FACTORY);
         super.tearDown();
     }
 

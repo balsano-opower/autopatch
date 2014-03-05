@@ -111,7 +111,7 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase {
 
         // Make sure we load our test launcher factory, which fakes out the data source context
         System.getProperties()
-                .setProperty("migration.factory",
+                .setProperty(JdbcMigrationLauncherFactoryLoader.MIGRATION_FACTORY,
                         "com.tacitknowledge.util.migration.jdbc.TestJdbcMigrationLauncherFactory");
         setupMigrationLauncher(MigrationRunnerFactory.DEFAULT_MIGRATION_STRATEGY);
         rollbackMocksControl = createControl();
@@ -152,6 +152,15 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase {
         contexts.put(contextMock, patchInfoStoreMock);
         rollbackLauncher.setContexts(contexts);
 
+    }
+
+    /**
+     * @see junit.framework.TestCase#tearDown()
+     */
+    protected void tearDown() throws Exception
+    {
+        super.tearDown();
+        System.clearProperty(JdbcMigrationLauncherFactoryLoader.MIGRATION_FACTORY);
     }
 
     private JdbcMigrationLauncher setupMigrationLauncher(final String strategy) throws MigrationException {

@@ -77,7 +77,7 @@ public class DistributedAutoPatchRollbackTest extends MigrationListenerTestBase
         log.debug("setting up " + this.getClass().getName());
         
         // Make sure we load our test launcher factory, which fakes out the data source context
-        System.getProperties().setProperty("migration.factory",
+        System.getProperties().setProperty(JdbcMigrationLauncherFactoryLoader.MIGRATION_FACTORY,
             "com.tacitknowledge.util.migration.jdbc.TestJdbcMigrationLauncherFactory");
         DistributedJdbcMigrationLauncherFactory factory = new TestDistributedJdbcMigrationLauncherFactory();
         
@@ -140,9 +140,13 @@ public class DistributedAutoPatchRollbackTest extends MigrationListenerTestBase
         currentPatchInfoStore = MockBuilder.getPatchInfoStore(12);
     }
 
-    protected void tearDown() throws Exception {
-        System.clearProperty("migration.factory");
+    /**
+     * @see junit.framework.TestCase#tearDown()
+     */
+    protected void tearDown() throws Exception
+    {
         super.tearDown();
+        System.clearProperty(JdbcMigrationLauncherFactoryLoader.MIGRATION_FACTORY);
     }
     /**
      * Make sure that the task loading works correctly

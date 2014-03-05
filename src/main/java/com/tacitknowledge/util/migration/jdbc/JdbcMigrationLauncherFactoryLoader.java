@@ -21,7 +21,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * Load a MigrationLauncherFactory. This will default to loading the
  * JdbcMigrationLauncherFactory, but will examine the system properties
- * for a property called "migration.factory" and load that one if specified
+ * for a property defined in MIGRATION_FACTORY and load that one if specified
  *
  * @author Jacques Morel
  */
@@ -32,6 +32,7 @@ public class JdbcMigrationLauncherFactoryLoader
      */
     private static Log log = LogFactory.getLog(JdbcMigrationLauncherFactoryLoader.class);
 
+    public static String MIGRATION_FACTORY = "migration.factory";
 
     /**
      * Create the JdbcMigrationLauncherFactory
@@ -41,7 +42,7 @@ public class JdbcMigrationLauncherFactoryLoader
     public JdbcMigrationLauncherFactory createFactory()
     {
         // Get the factory name from the system properties if possible
-        String factoryName = System.getProperties().getProperty("migration.factory");
+        String factoryName = System.getProperties().getProperty(MIGRATION_FACTORY);
         if (factoryName == null)
         {
             factoryName = JdbcMigrationLauncherFactory.class.getName();

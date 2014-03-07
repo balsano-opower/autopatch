@@ -222,4 +222,12 @@ public class DataSourceMigrationContext implements JdbcMigrationContext
     {
         this.databaseName = databaseName;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getSql(String key) {
+        return this.getDatabaseType().getProperty(key);
+    }
 }

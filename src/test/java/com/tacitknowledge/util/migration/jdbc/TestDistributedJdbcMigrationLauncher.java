@@ -43,6 +43,7 @@ public class TestDistributedJdbcMigrationLauncher extends DistributedJdbcMigrati
     public TestDistributedJdbcMigrationLauncher()
     {
         super();
+        setPatchTableFactory(new TestPatchTableFactory());
     }
     
     /**
@@ -50,9 +51,10 @@ public class TestDistributedJdbcMigrationLauncher extends DistributedJdbcMigrati
      * 
      * @param context the context to use for migration loading
      */
-    public TestDistributedJdbcMigrationLauncher(JdbcMigrationContext context)
+    public TestDistributedJdbcMigrationLauncher(JdbcMigrationContext context) throws MigrationException
     {
         super(context);
+        setPatchTableFactory(new TestPatchTableFactory());
     }
     
     /**

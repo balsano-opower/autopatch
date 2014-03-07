@@ -73,17 +73,14 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
 
         log.debug("setting up " + this.getClass().getName());
 
-        // Make sure we load our test launcher factory, which fakes out the data source context
-        System.getProperties()
-                .setProperty("migration.factory",
-                        "com.tacitknowledge.util.migration.jdbc.TestJdbcMigrationLauncherFactory");
         DistributedJdbcMigrationLauncherFactory factory =
                 new TestDistributedJdbcMigrationLauncherFactory();
 
         // Create the launcher (this does configure it as a side-effect)
         launcher =
                 (DistributedJdbcMigrationLauncher) factory.createMigrationLauncher("orchestration");
-
+        // Make sure we load our test launcher factory, which fakes out the data source context
+        launcher.setPatchTableFactory(new TestPatchTableFactory());
         // Make sure we get notification of any migrations
         launcher.getMigrationProcess().addListener(this);
         context = new TestMigrationContext();
@@ -308,6 +305,7 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
         expect(distributedLauncher.getMigrationProcess() ).andReturn(migrationProcess).anyTimes();
         control.replay();
 
+        factory.setJdbcMigrationLauncherFactory(new TestJdbcMigrationLauncherFactory());
         factory.configureFromMigrationProperties(distributedLauncher, systemName,properties, propertyFileName);
 
         control.verify();

@@ -69,6 +69,11 @@ public class DistributedJdbcMigrationLauncherFactory extends JdbcMigrationLaunch
     private static Log log = LogFactory.getLog(DistributedJdbcMigrationLauncherFactory.class);
 
     /**
+     * Migration Launcher factory
+     */
+    private JdbcMigrationLauncherFactory jdbcMigrationLauncherFactory = new JdbcMigrationLauncherFactory();
+
+    /**
      * Creates and configures a new <code>JdbcMigrationLauncher</code> based on the
      * values in the <em>migration.properties</em> file for the given system.
      *
@@ -238,11 +243,8 @@ public class DistributedJdbcMigrationLauncherFactory extends JdbcMigrationLaunch
         for (int i = 0; i < controlledSystemNames.length; i++)
         {
             log.info("Creating controlled patch executor for system " + controlledSystemNames[i]);
-            //TODO should be injected
-            JdbcMigrationLauncherFactory factory =
-                    new JdbcMigrationLauncherFactoryLoader().createFactory();
             JdbcMigrationLauncher subLauncher =
-                    factory.createMigrationLauncher(controlledSystemNames[i], propFileName);
+                    jdbcMigrationLauncherFactory.createMigrationLauncher(controlledSystemNames[i], propFileName);
 
             controlledSystems.put(controlledSystemNames[i], subLauncher);
 
@@ -253,5 +255,13 @@ public class DistributedJdbcMigrationLauncherFactory extends JdbcMigrationLaunch
         // communicate our new-found controlled systems to the migration process
         ((DistributedMigrationProcess) launcher.getMigrationProcess())
                 .setControlledSystems(controlledSystems);
+    }
+
+    public void setJdbcMigrationLauncherFactory(JdbcMigrationLauncherFactory jdbcMigrationLauncherFactory) {
+        this.jdbcMigrationLauncherFactory = jdbcMigrationLauncherFactory;
+    }
+
+    public JdbcMigrationLauncherFactory getJdbcMigrationLauncherFactory() {
+        return this.jdbcMigrationLauncherFactory;
     }
 }

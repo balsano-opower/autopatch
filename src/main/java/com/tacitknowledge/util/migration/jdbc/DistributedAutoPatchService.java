@@ -99,7 +99,7 @@ public class DistributedAutoPatchService extends DistributedJdbcMigrationLaunche
      *
      * @return DistributedJdbcMigrationLauncher configured from injected properties
      */
-    public DistributedJdbcMigrationLauncher getLauncher()
+    public DistributedJdbcMigrationLauncher getLauncher() throws MigrationException
     {
         DistributedJdbcMigrationLauncher launcher = getDistributedJdbcMigrationLauncher();
         launcher.addContext(getContext());

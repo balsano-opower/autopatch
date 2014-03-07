@@ -62,16 +62,11 @@ public class PatchTable implements PatchInfoStore
     private JdbcMigrationContext context = null;
 
     /**
-     * Keeps track of table validation (see #createPatchesTableIfNeeded)
-     */
-    private boolean tableExistenceValidated = false;
-
-    /**
      * Create a new <code>PatchTable</code>.
      *
      * @param migrationContext the migration configuration and connection source
      */
-    public PatchTable(JdbcMigrationContext migrationContext)
+    public PatchTable(JdbcMigrationContext migrationContext) throws MigrationException
     {
         this.context = migrationContext;
 
@@ -79,18 +74,17 @@ public class PatchTable implements PatchInfoStore
         {
             throw new IllegalArgumentException("The JDBC database type is required");
         }
+
+        createPatchStoreIfNeeded();
     }
 
     /**
-     * {@inheritDoc}
+     * Creates the patch storage area if it has not been done before
+     *
+     * @throws MigrationException if creation is unsuccessful
      */
     public void createPatchStoreIfNeeded() throws MigrationException
     {
-        if (tableExistenceValidated)
-        {
-            return;
-        }
-
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -102,7 +96,6 @@ public class PatchTable implements PatchInfoStore
             stmt.setString(1, context.getSystemName());
             rs = stmt.executeQuery();
             log.debug("'patches' table already exists.");
-            tableExistenceValidated = true;
         }
         catch (SQLException e)
         {
@@ -132,7 +125,6 @@ public class PatchTable implements PatchInfoStore
             {
                 throw new MigrationException("Unable to create patch table", sqle);
             }
-            tableExistenceValidated = true;
             log.info("Created 'patches' table.");
         }
         catch (Exception ex)
@@ -164,8 +156,6 @@ public class PatchTable implements PatchInfoStore
      */
     public int getPatchLevel() throws MigrationException
     {
-        createPatchStoreIfNeeded();
-
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -231,8 +221,6 @@ public class PatchTable implements PatchInfoStore
      */
     public boolean isPatchStoreLocked() throws MigrationException
     {
-        createPatchStoreIfNeeded();
-
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -268,7 +256,6 @@ public class PatchTable implements PatchInfoStore
      */
     public void lockPatchStore() throws MigrationException, IllegalStateException
     {
-        createPatchStoreIfNeeded();
         if (!updatePatchLock(true))
         {
             throw new IllegalStateException("Patch table is already locked!");
@@ -354,7 +341,7 @@ public class PatchTable implements PatchInfoStore
      */
     protected String getSql(String key)
     {
-        return context.getDatabaseType().getProperty(key);
+        return context.getSql(key);
     }
 
     /**
@@ -450,8 +437,6 @@ public class PatchTable implements PatchInfoStore
 
     public Set<Integer> getPatchesApplied() throws MigrationException
     {
-        createPatchStoreIfNeeded();
-
         Connection connection = null;
         PreparedStatement stmt = null;
         ResultSet resultSet = null;

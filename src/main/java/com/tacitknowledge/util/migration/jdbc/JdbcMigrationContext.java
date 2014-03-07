@@ -69,4 +69,9 @@ public interface JdbcMigrationContext extends MigrationContext
      * @return Returns the database type.
      */
     public DatabaseType getDatabaseType();
+
+    /**
+     * @return SQL string for a given key
+     */
+    public String getSql(String key);
 }

@@ -105,7 +105,7 @@ public class AutoPatchService extends JdbcMigrationLauncherFactory
      *
      * @return JdbcMigrationLauncher configured from injected properties
      */
-    public JdbcMigrationLauncher getLauncher()
+    public JdbcMigrationLauncher getLauncher() throws MigrationException
     {
         JdbcMigrationLauncher launcher = getJdbcMigrationLauncher();
 

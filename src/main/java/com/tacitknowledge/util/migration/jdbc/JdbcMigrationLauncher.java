@@ -180,6 +180,10 @@ public class JdbcMigrationLauncher implements RollbackListener
     {
         PatchInfoStore patchTable = createPatchStore(context);
 
+        if (isReadOnly()) {
+            return 0;
+        }
+
         lockPatchStore(context);
 
         // Now apply the patches
@@ -478,6 +482,10 @@ public class JdbcMigrationLauncher implements RollbackListener
     protected int doMigrations(JdbcMigrationContext context) throws SQLException, MigrationException
     {
         PatchInfoStore patchTable = createPatchStore(context);
+
+        if (isReadOnly()) {
+            return 0;
+        }
 
         lockPatchStore(context);
 

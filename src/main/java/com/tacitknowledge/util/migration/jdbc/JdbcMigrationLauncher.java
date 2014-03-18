@@ -179,11 +179,15 @@ public class JdbcMigrationLauncher implements RollbackListener
             throws SQLException, MigrationException
     {
         PatchInfoStore patchTable = createPatchStore(context);
+        int executedPatchCount = 0;
+
+        if (isReadOnly()) {
+            return executedPatchCount;
+        }
 
         lockPatchStore(context);
 
         // Now apply the patches
-        int executedPatchCount = 0;
         try
         {
 
@@ -478,11 +482,15 @@ public class JdbcMigrationLauncher implements RollbackListener
     protected int doMigrations(JdbcMigrationContext context) throws SQLException, MigrationException
     {
         PatchInfoStore patchTable = createPatchStore(context);
+        int executedPatchCount = 0;
+
+        if (isReadOnly()) {
+            return executedPatchCount;
+        }
 
         lockPatchStore(context);
 
         // Now apply the patches
-        int executedPatchCount = 0;
         try
         {
 

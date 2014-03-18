@@ -66,6 +66,8 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase {
     private static final int[] ROLLBACK_LEVELS = new int[]{ROLLBACK_LEVEL};
     private static final int ROLLBACK_EXPECTED = 5;
     private static final boolean FORCE_ROLLBACK = false;
+    private static final String MIGRATION = "migration";
+    private static final String ROLLBACK = "rollback";
 
     /**
      * constructor that takes a name
@@ -124,6 +126,7 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase {
         Connection connectionMock = rollbackMocksControl.createMock(Connection.class);
 
         //Dependency Interactions
+        expect(rollbackMigrationProcessMock.isReadOnly()).andReturn(false);
         expect(patchInfoStoreMock.isPatchStoreLocked()).andReturn(false);
         expect(patchInfoStoreMock.getPatchLevel()).andReturn(3);
         patchInfoStoreMock.lockPatchStore();
@@ -492,4 +495,32 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase {
         rollbackMocksControl.verify();
     }
 
+    private void runReadOnlyTest(String mode) throws MigrationException{
+        IMocksControl mockControl = createStrictControl();
+        TestJdbcMigrationLauncher testLauncher = new TestJdbcMigrationLauncher();
+
+        PatchInfoStore patchStore = mockControl.createMock(PatchInfoStore.class);
+        mockControl.replay();
+
+        testLauncher.addContext(context);
+        testLauncher.setPatchStore(patchStore);
+        testLauncher.getMigrationProcess().setReadOnly(true);
+
+        if (mode.equals(MIGRATION)) {
+            testLauncher.doMigrations();
+        } else if (mode.equals(ROLLBACK)) {
+            testLauncher.doRollbacks(ROLLBACK_LEVELS);
+        } else {
+            throw new MigrationException("Unsupported mode: " + mode);
+        }
+        mockControl.verify();
+    }
+
+    public void testDoMigrationsDoesNotUpdatePatchStoreInReadOnlyMode() throws MigrationException {
+        runReadOnlyTest(MIGRATION);
+    }
+
+    public void testDoRollbacksDoesNotUpdatePatchStoreInReadOnlyMode() throws MigrationException {
+        runReadOnlyTest(ROLLBACK);
+    }
 }

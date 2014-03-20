@@ -17,7 +17,12 @@ package com.tacitknowledge.util.migration.jdbc;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Properties;
+import java.util.List;
+import java.util.Set;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Defines a type of database (e.g. <code>oracle</code> or <code>postgres</code>.  This
@@ -67,6 +72,31 @@ public class DatabaseType
      */
     private String databaseType = "";
 
+
+    /**
+     * Abstract property names into constants
+     */
+    public static final String SUPPORTS_MULTIPLE_STATEMENTS_KEY = "supportsMultipleStatements";
+    public static final String CREATE_PATCH_TABLE_STATEMENT_KEY = "patches.create";
+    public static final String INSERT_PATCH_STATEMENT_KEY = "level.create";
+    public static final String PATCH_COUNT_STATEMENT_KEY = "level.count";
+    public static final String PATCH_TABLE_EXISTS_STATEMENT_KEY = "level.table.exists";
+    public static final String CURRENT_PATCH_LEVEL_STATEMENT_KEY = "level.read";
+    public static final String ROLLBACK_PATCH_STATEMENT_KEY = "level.rollback";
+    public static final String UPDATE_PATCH_STATEMENT_KEY = "level.update";
+    public static final String PATCH_EXISTS_STATEMENT_KEY = "level.exists";
+    public static final String GET_ALL_PATCHES_STATEMENT_KEY = "patches.all";
+    public static final String LOCK_STATUS_STATEMENT_KEY = "lock.read";
+    public static final String LOCK_OBTAIN_STATEMENT_KEY = "lock.obtain";
+    public static final String LOCK_RELEASE_STATEMENT_KEY = "lock.release";
+    private static final String[] PARAMETER_CONSTANTS = {
+        SUPPORTS_MULTIPLE_STATEMENTS_KEY, CREATE_PATCH_TABLE_STATEMENT_KEY, INSERT_PATCH_STATEMENT_KEY,
+        PATCH_COUNT_STATEMENT_KEY, PATCH_TABLE_EXISTS_STATEMENT_KEY, CURRENT_PATCH_LEVEL_STATEMENT_KEY,
+        ROLLBACK_PATCH_STATEMENT_KEY, UPDATE_PATCH_STATEMENT_KEY, PATCH_EXISTS_STATEMENT_KEY,
+        GET_ALL_PATCHES_STATEMENT_KEY, LOCK_STATUS_STATEMENT_KEY, LOCK_OBTAIN_STATEMENT_KEY,
+        LOCK_RELEASE_STATEMENT_KEY
+    };
+
     /**
      * Creates a new <code>DatabaseType</code>.
      *
@@ -90,6 +120,37 @@ public class DatabaseType
             // this is okay, in this class, migration.properties is only used to override SQL
         }
         this.databaseType = databaseType;
+
+        validatePropertiesSet();
+    }
+
+    /**
+     * Validates that all required properties are set and no extra properties are set.
+     */
+    public void validatePropertiesSet()
+    {
+        // copy all the parameter constants to a mutable list so we can operate on it
+        List<String> constants = new ArrayList<String>(Arrays.asList(this.PARAMETER_CONSTANTS));
+        // get loaded property names from the database property file
+        Set<String> properties = databaseProperties.stringPropertyNames();
+
+        // look for any properties without corresponding constants
+        if (!constants.containsAll(properties)) {
+            properties.removeAll(constants);
+            throw new IllegalArgumentException(
+                    String.format("Additional properties set in property file %s.properties: %s",
+                                  databaseType,
+                                  StringUtils.join(properties, " ")));
+        }
+
+        // look for any properties which were not defined for this database type
+        constants.removeAll(properties);
+        if (!constants.isEmpty()) {
+            throw new IllegalArgumentException(
+                    String.format("Properties not set in property file %s.properties: ",
+                                  databaseType,
+                                  StringUtils.join(constants, " ")));
+        }
     }
 
     protected Properties loadProperties(String propertiesFilename, ClassLoader loader)
@@ -171,7 +232,7 @@ public class DatabaseType
      */
     public boolean isMultipleStatementsSupported()
     {
-        String value = this.getProperty("supportsMultipleStatements");
+        String value = this.getProperty(SUPPORTS_MULTIPLE_STATEMENTS_KEY);
         String multiStatement = (value != null) ? value : "false";
         return Boolean.valueOf(multiStatement).booleanValue();
     }

@@ -50,6 +50,8 @@ class MockDatabaseType extends DatabaseType
     {
         this.multipleStatementsSupported = multipleStatementsSupported;
     }
-    
+
+    /** {@inheritDoc} */
+    public void validatePropertiesSet() { }
 }
 

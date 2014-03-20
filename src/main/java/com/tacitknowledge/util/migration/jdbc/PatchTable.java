@@ -92,7 +92,7 @@ public class PatchTable implements PatchInfoStore
         {
             conn = context.getConnection();
 
-            stmt = conn.prepareStatement(getSql("level.table.exists"));
+            stmt = conn.prepareStatement(getSql(DatabaseType.PATCH_TABLE_EXISTS_STATEMENT_KEY));
             stmt.setString(1, context.getSystemName());
             rs = stmt.executeQuery();
             log.debug("'patches' table already exists.");
@@ -113,10 +113,10 @@ public class PatchTable implements PatchInfoStore
             log.info("'patches' table must not exist; creating....");
             try
             {
-                stmt = conn.prepareStatement(getSql("patches.create"));
+                stmt = conn.prepareStatement(getSql(DatabaseType.CREATE_PATCH_TABLE_STATEMENT_KEY));
                 if (log.isDebugEnabled())
                 {
-                    log.debug("Creating patches table with SQL '" + getSql("patches.create") + "'");
+                    log.debug("Creating patches table with SQL '" + getSql(DatabaseType.CREATE_PATCH_TABLE_STATEMENT_KEY) + "'");
                 }
                 stmt.execute();
                 context.commit();
@@ -162,7 +162,7 @@ public class PatchTable implements PatchInfoStore
         try
         {
             conn = context.getConnection();
-            stmt = conn.prepareStatement(getSql("level.read"));
+            stmt = conn.prepareStatement(getSql(DatabaseType.CURRENT_PATCH_LEVEL_STATEMENT_KEY));
             stmt.setString(1, context.getSystemName());
             rs = stmt.executeQuery();
             if (rs.next())
@@ -200,7 +200,7 @@ public class PatchTable implements PatchInfoStore
         try
         {
             conn = context.getConnection();
-            stmt = conn.prepareStatement(getSql("level.update"));
+            stmt = conn.prepareStatement(getSql(DatabaseType.UPDATE_PATCH_STATEMENT_KEY));
             stmt.setInt(1, level);
             stmt.setString(2, context.getSystemName());
             stmt.execute();
@@ -227,7 +227,7 @@ public class PatchTable implements PatchInfoStore
         try
         {
             conn = context.getConnection();
-            stmt = conn.prepareStatement(getSql("lock.read"));
+            stmt = conn.prepareStatement(getSql(DatabaseType.LOCK_STATUS_STATEMENT_KEY));
             stmt.setString(1, context.getSystemName());
             stmt.setString(2, context.getSystemName());
             rs = stmt.executeQuery();
@@ -281,7 +281,7 @@ public class PatchTable implements PatchInfoStore
         try
         {
             conn = context.getConnection();
-            stmt = conn.prepareStatement(getSql("level.exists"));
+            stmt = conn.prepareStatement(getSql(DatabaseType.PATCH_EXISTS_STATEMENT_KEY));
             stmt.setString(1, context.getSystemName());
             stmt.setString(2, String.valueOf(patchLevel));
             rs = stmt.executeQuery();
@@ -315,7 +315,7 @@ public class PatchTable implements PatchInfoStore
         try
         {
             conn = context.getConnection();
-            stmt = conn.prepareStatement(getSql("level.rollback"));
+            stmt = conn.prepareStatement(getSql(DatabaseType.ROLLBACK_PATCH_STATEMENT_KEY));
             stmt.setInt(1, rollbackLevel);
             stmt.setString(2, context.getSystemName());
             stmt.execute();
@@ -359,14 +359,14 @@ public class PatchTable implements PatchInfoStore
         try
         {
             conn = context.getConnection();
-            stmt = conn.prepareStatement(getSql("level.created"));
+            stmt = conn.prepareStatement(getSql(DatabaseType.PATCH_COUNT_STATEMENT_KEY));
             stmt.setString(1, systemName);
             rs = stmt.executeQuery();
             rs.next();
             if (rs.getInt(1) == 0)
             {
                 SqlUtil.close(null, stmt, null);
-                stmt = conn.prepareStatement(getSql("level.create"));
+                stmt = conn.prepareStatement(getSql(DatabaseType.INSERT_PATCH_STATEMENT_KEY));
                 stmt.setString(1, systemName);
                 stmt.execute();
                 context.commit();
@@ -398,7 +398,7 @@ public class PatchTable implements PatchInfoStore
      */
     private boolean updatePatchLock(boolean lock) throws MigrationException
     {
-        String sqlkey = (lock) ? "lock.obtain" : "lock.release";
+        String sqlkey = (lock) ? DatabaseType.LOCK_OBTAIN_STATEMENT_KEY : DatabaseType.LOCK_RELEASE_STATEMENT_KEY;
         Connection conn = null;
         PreparedStatement stmt = null;
 
@@ -444,7 +444,7 @@ public class PatchTable implements PatchInfoStore
         try
         {
             connection = context.getConnection();
-            stmt = connection.prepareStatement(getSql("patches.all"));
+            stmt = connection.prepareStatement(getSql(DatabaseType.GET_ALL_PATCHES_STATEMENT_KEY));
             stmt.setString(1, context.getSystemName());
             resultSet = stmt.executeQuery();
             while (resultSet.next())

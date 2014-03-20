@@ -71,7 +71,7 @@ public class DatabaseTypeTest extends TestCase
         try
         {
             dbProperties.load(is);
-            assertEquals(dbTypeExpectedValue, dbProperties.getProperty("supportsMultipleStatements"));
+            assertEquals(dbTypeExpectedValue, dbProperties.getProperty(DatabaseType.SUPPORTS_MULTIPLE_STATEMENTS_KEY));
         }
         catch (IOException e)
         {
@@ -106,7 +106,7 @@ public class DatabaseTypeTest extends TestCase
         try
         {
             migrationProperties.load(is2);
-            assertEquals(migrationExpectedValue, migrationProperties.getProperty("mysql.supportsMultipleStatements"));
+            assertEquals(migrationExpectedValue, migrationProperties.getProperty("mysql." + DatabaseType.SUPPORTS_MULTIPLE_STATEMENTS_KEY));
         }
         catch (IOException e)
         {
@@ -132,5 +132,45 @@ public class DatabaseTypeTest extends TestCase
         assertEquals(overrideExpectedValue, databaseType.isMultipleStatementsSupported());
     }
 
+    private void validatePropertiesSet(String type) {
+        try {
+            DatabaseType databaseType = new DatabaseType(type);
+        } catch (IllegalArgumentException e) {
+            fail("Unable to validate properties for database type [" + type + "] " + e.toString());
+        }
+    }
 
+    public void testValidateHsqldbPropertiesSet() {
+        validatePropertiesSet("hsqldb");
+    }
+
+    public void testValidatePostgresPropertiesSet() {
+        validatePropertiesSet("postgres");
+    }
+
+    public void testValidateMysqlPropertiesSet() {
+        validatePropertiesSet("mysql");
+    }
+
+    public void testValidateOraclePropertiesSet() {
+        validatePropertiesSet("oracle");
+    }
+
+    public void testValidateSqlServerPropertiesSet() {
+        validatePropertiesSet("sqlserver");
+    }
+
+    public void testValidateSybasePropertiesSet() {
+        validatePropertiesSet("sybase");
+    }
+
+    public void testValidateUnsupportedDatabaseType() {
+        String type = "imaginary";
+        try {
+            DatabaseType databaseType = new DatabaseType(type);
+            fail("Expected to be unable to instantiate a DatabaseType of type: " + type);
+        } catch (IllegalArgumentException e) {
+            // do nothing, we pass
+        }
+    }
 }

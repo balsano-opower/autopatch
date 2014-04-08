@@ -27,12 +27,6 @@ import java.util.Set;
  */
 public interface PatchInfoStore
 {
-    /**
-     * Creates the patch storage area if it has not been done before
-     *
-     * @throws MigrationException if creation is unsuccessful
-     */
-    public void createPatchStoreIfNeeded() throws MigrationException;
 
     /**
      * Returns the current patch level of the system

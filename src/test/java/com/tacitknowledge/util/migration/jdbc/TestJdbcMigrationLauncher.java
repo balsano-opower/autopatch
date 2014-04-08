@@ -46,18 +46,9 @@ public class TestJdbcMigrationLauncher extends JdbcMigrationLauncher
     public TestJdbcMigrationLauncher()
     {
         super();
+        setPatchTableFactory(new TestPatchTableFactory());
     }
-    
-    /**
-     * Delegating constructors
-     * 
-     * @param context the context to use for migration loading
-     */
-    public TestJdbcMigrationLauncher(JdbcMigrationContext context)
-    {
-        super(context);
-    }
-    
+
     /**
      * Override the patch store creation to be the patch table we have
      * 

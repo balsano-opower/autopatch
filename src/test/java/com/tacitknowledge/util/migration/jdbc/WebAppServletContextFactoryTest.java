@@ -66,7 +66,7 @@ public class WebAppServletContextFactoryTest extends TestCase
      */
     public void testConfiguredContext() throws NamingException
     {
-        JdbcMigrationLauncherFactory launcherFactory = new JdbcMigrationLauncherFactory();
+        JdbcMigrationLauncherFactory launcherFactory = new TestJdbcMigrationLauncherFactory();
         MockServletContext sc = new MockServletContext();
         
         String dbType = "mysql";
@@ -108,7 +108,7 @@ public class WebAppServletContextFactoryTest extends TestCase
      */
     public void testConfiguredMultiNodeContext() throws NamingException
     {
-        JdbcMigrationLauncherFactory launcherFactory = new JdbcMigrationLauncherFactory();
+        JdbcMigrationLauncherFactory launcherFactory = new TestJdbcMigrationLauncherFactory();
         MockServletContext sc = new MockServletContext();
         
         String dbType1 = "mysql";

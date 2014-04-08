@@ -85,7 +85,6 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         context.setSystemName("milestone");
         context.setDatabaseType(new DatabaseType("hsqldb"));
         
-        table = new PatchTable(context);
         contextControl = createStrictControl();
         mockContext = contextControl.createMock(JdbcMigrationContext.class);
     }
@@ -106,6 +105,10 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         {
             // Expected
         }
+        catch (MigrationException e)
+        {
+            fail("Received an exception instantiating PatchTable:" + e.toString());
+        }
     }
     
     /**
@@ -117,15 +120,14 @@ public class PatchTableTest extends JDBCTestCaseAdapter
     {
         // Test-specific setup
         PreparedStatementResultSetHandler h = conn.getPreparedStatementResultSetHandler();
-        h.prepareThrowsSQLException(table.getSql("level.table.exists"));
+        h.prepareThrowsSQLException(context.getSql("level.table.exists"));
         
         setupLevelCreatedMock(h, false);
-        table.createPatchStoreIfNeeded();
 
         commonVerifications();
         verifyCommitted();
         verifyPreparedStatementParameter(0, 1, "milestone");
-        verifySQLStatementExecuted(table.getSql("patches.create"));
+        verifySQLStatementExecuted(context.getSql("patches.create"));
     }
     
     /**
@@ -138,11 +140,10 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         expect(mockContext.getDatabaseType()).andReturn(new DatabaseType("postgres")).atLeastOnce();
         expect(mockContext.getConnection()).andThrow(new SQLException("An exception during getConnection"));
         contextControl.replay();
-        
-        table = new PatchTable(mockContext);
-        try 
+
+        try
         {
-            table.createPatchStoreIfNeeded();
+            table = new PatchTable(mockContext);
             fail("Expected a MigrationException");
         } 
         catch (MigrationException e) 
@@ -163,13 +164,13 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         MockResultSet rs = handler.createResultSet();
         handler.prepareGlobalResultSet(rs);
         rs.addRow(new Integer[] {new Integer(13)});
-        
-        table.createPatchStoreIfNeeded();
-        
+
+        table = new PatchTable(context);
+
         commonVerifications();
         verifyNotCommitted();
         verifyPreparedStatementParameter(0, 1, "milestone");
-        verifyPreparedStatementNotPresent(table.getSql("patches.create"));
+        verifyPreparedStatementNotPresent(context.getSql("patches.create"));
     }
     
     /**
@@ -185,13 +186,14 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         rs.addRow(new Integer[]{new Integer(13)});
         handler.prepareGlobalResultSet(rs);
 
+        table = new PatchTable(context);
         int i = table.getPatchLevel();
 
         assertEquals(13, i);
         commonVerifications();
         verifyNotCommitted();
         verifyPreparedStatementParameter(1, 1, "milestone");
-        verifyPreparedStatementNotPresent(table.getSql("level.create"));
+        verifyPreparedStatementNotPresent(context.getSql("level.create"));
     }
 
     /**
@@ -200,10 +202,11 @@ public class PatchTableTest extends JDBCTestCaseAdapter
      * @param handler prepared statement handler
      * @param levelExists controls what the mock returns for whether a level was already created or not
      */
-    private void setupLevelCreatedMock(PreparedStatementResultSetHandler handler, Boolean levelExists) {
+    private void setupLevelCreatedMock(PreparedStatementResultSetHandler handler, Boolean levelExists) throws MigrationException{
         MockResultSet rs = handler.createResultSet();
-        handler.prepareResultSet(table.getSql("level.count"), rs);
+        handler.prepareResultSet(context.getSql("level.count"), rs);
         rs.addRow(new Integer[] {BooleanUtils.toInteger(levelExists)});
+        table = new PatchTable(context);
     }
 
     /**
@@ -217,15 +220,15 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         handler = conn.getPreparedStatementResultSetHandler();
         MockResultSet rs = handler.createResultSet();
         // empty result set
-        handler.prepareResultSet(table.getSql("level.read"), rs);
-        handler.prepareThrowsSQLException(table.getSql("level.table.exists"));
+        handler.prepareResultSet(context.getSql("level.read"), rs);
+        handler.prepareThrowsSQLException(context.getSql("level.table.exists"));
         setupLevelCreatedMock(handler, false);
 
         int i = table.getPatchLevel();
 
         assertEquals(0, i);
         commonVerifications();
-        verifyPreparedStatementPresent(table.getSql("level.create"));
+        verifyPreparedStatementPresent(context.getSql("level.create"));
     }
 
     /**
@@ -238,13 +241,13 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         handler = conn.getPreparedStatementResultSetHandler();
         MockResultSet rs = handler.createResultSet();
         rs.addRow(new Integer[]{new Integer(12)});
-        handler.prepareResultSet(table.getSql("level.read"), rs, new String[]{"milestone"});
+        handler.prepareResultSet(context.getSql("level.read"), rs, new String[]{"milestone"});
         setupLevelCreatedMock(handler, true);
 
         table.updatePatchLevel(13);
         
-        verifyPreparedStatementParameter(table.getSql("level.update"), 1, new Integer(13));
-        verifyPreparedStatementParameter(table.getSql("level.update"), 2, "milestone");
+        verifyPreparedStatementParameter(context.getSql("level.update"), 1, new Integer(13));
+        verifyPreparedStatementParameter(context.getSql("level.update"), 2, "milestone");
         commonVerifications();
         verifyCommitted();
     }
@@ -261,7 +264,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         handler = conn.getPreparedStatementResultSetHandler();
         MockResultSet rs = handler.createResultSet();
         rs.addRow(new String[]{"F"});
-        handler.prepareResultSet(table.getSql("lock.read"), rs, new String[]{"milestone", "milestone"});
+        handler.prepareResultSet(context.getSql("lock.read"), rs, new String[]{"milestone", "milestone"});
         setupLevelCreatedMock(handler, true);
         
         assertFalse(table.isPatchStoreLocked());
@@ -281,7 +284,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         handler = conn.getPreparedStatementResultSetHandler();
         MockResultSet rs = handler.createResultSet();
         rs.addRow(new String[]{"T"});
-        handler.prepareResultSet(table.getSql("lock.read"), rs, new String[]{"milestone", "milestone"});
+        handler.prepareResultSet(context.getSql("lock.read"), rs, new String[]{"milestone", "milestone"});
         setupLevelCreatedMock(handler, true);
         
         assertTrue(table.isPatchStoreLocked());
@@ -300,7 +303,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         // Test-specific setup
         // Return a non-empty set in response to the patch lock query
         handler = conn.getPreparedStatementResultSetHandler();
-        handler.prepareUpdateCount(table.getSql("lock.obtain"), 0, new String[] {"milestone", "milestone"});
+        handler.prepareUpdateCount(context.getSql("lock.obtain"), 0, new String[] {"milestone", "milestone"});
         setupLevelCreatedMock(handler, true);
         
         try
@@ -313,8 +316,8 @@ public class PatchTableTest extends JDBCTestCaseAdapter
             // Expected
         }
         
-        verifyPreparedStatementParameter(table.getSql("lock.obtain"), 1, "milestone");
-        verifyPreparedStatementParameter(table.getSql("lock.obtain"), 2, "milestone");
+        verifyPreparedStatementParameter(context.getSql("lock.obtain"), 1, "milestone");
+        verifyPreparedStatementParameter(context.getSql("lock.obtain"), 2, "milestone");
         commonVerifications();
         verifyCommitted();
     }
@@ -331,11 +334,11 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         // Return an empty set in response to the patch lock query
         handler = conn.getPreparedStatementResultSetHandler();
         setupLevelCreatedMock(handler, true);
-        handler.prepareUpdateCount(table.getSql("lock.obtain"), 1, new String[] {"milestone", "milestone"});
+        handler.prepareUpdateCount(context.getSql("lock.obtain"), 1, new String[] {"milestone", "milestone"});
         
         table.lockPatchStore();
-        verifyPreparedStatementParameter(table.getSql("lock.obtain"), 1, "milestone");
-        verifyPreparedStatementParameter(table.getSql("lock.obtain"), 2, "milestone");
+        verifyPreparedStatementParameter(context.getSql("lock.obtain"), 1, "milestone");
+        verifyPreparedStatementParameter(context.getSql("lock.obtain"), 2, "milestone");
         commonVerifications();
         verifyCommitted();
     }
@@ -346,10 +349,14 @@ public class PatchTableTest extends JDBCTestCaseAdapter
      * @throws Exception if an unexpected error occurs
      */
     public void testUnlockPatchTable() throws Exception
-    {       
+    {
+        // Return a non-empty set in response to the patch lock query
+        handler = conn.getPreparedStatementResultSetHandler();
+        handler.prepareUpdateCount(context.getSql("lock.obtain"), 0, new String[] {"milestone", "milestone"});
+        setupLevelCreatedMock(handler, true);
         table.unlockPatchStore();
 
-        verifyPreparedStatementParameter(table.getSql("lock.release"), 1, "milestone");
+        verifyPreparedStatementParameter(context.getSql("lock.release"), 1, "milestone");
         commonVerifications();
         verifyCommitted();
     }
@@ -360,10 +367,11 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         MockResultSet rs = handler.createResultSet();
         rs.addRow(new Integer[]{new Integer(3)});
         handler.prepareGlobalResultSet(rs);
+        table = new PatchTable(context);
 
         assertEquals(true, table.isPatchApplied(3));
         commonVerifications();
-        verifyPreparedStatementPresent(table.getSql("level.exists"));
+        verifyPreparedStatementPresent(context.getSql("level.exists"));
 
     }
 
@@ -373,10 +381,9 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         expect(mockContext.getConnection()).andThrow(new SQLException("An exception during getConnection"));
         contextControl.replay();
 
-        table = new PatchTable(mockContext);
-
         try {
 
+            table = new PatchTable(mockContext);
             table.isPatchApplied(3);
             fail("MigrationException should have happened if SQLException");
 
@@ -389,13 +396,17 @@ public class PatchTableTest extends JDBCTestCaseAdapter
 
     public void testIsPatchAppliedWithMissingLevel() throws MigrationException
     {
+        // Return a non-empty set in response to the patch lock query
         handler = conn.getPreparedStatementResultSetHandler();
+        handler.prepareUpdateCount(context.getSql("lock.obtain"), 0, new String[] {"milestone", "milestone"});
         MockResultSet rs = handler.createResultSet();
-        handler.prepareGlobalResultSet(rs);
+        handler.prepareResultSet(context.getSql("level.exists"), rs);
+        setupLevelCreatedMock(handler, true);
+        table = new PatchTable(context);
 
         assertEquals(false, table.isPatchApplied(3));
         commonVerifications();
-        verifyPreparedStatementPresent(table.getSql("level.exists"));
+        verifyPreparedStatementPresent(context.getSql("level.exists"));
     }
 
     public void testPatchRetrievesSetWithPatchesApplied () throws SQLException, MigrationException {
@@ -407,9 +418,10 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         Set<Integer> expected = new HashSet<Integer>();
         expected.add(1);
         expected.add(2);
+        table = new PatchTable(context);
         assertEquals(expected, table.getPatchesApplied());
         commonVerifications();
-        verifyPreparedStatementPresent(table.getSql("patches.all"));
+        verifyPreparedStatementPresent(context.getSql("patches.all"));
     }
 
     public void testSecondSystemInitialized () throws Exception, SQLException, MigrationException {
@@ -418,16 +430,16 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         handler = conn.getPreparedStatementResultSetHandler();
         MockResultSet rs = handler.createResultSet();
         // empty result set
-        handler.prepareResultSet(table.getSql("level.read"), rs, Arrays.asList(systemName));
-        handler.prepareThrowsSQLException(table.getSql("level.table.exists"));
+        handler.prepareResultSet(context.getSql("level.read"), rs, Arrays.asList(systemName));
+        handler.prepareThrowsSQLException(context.getSql("level.table.exists"));
         setupLevelCreatedMock(handler, false);
 
         int i = table.getPatchLevel();
 
         assertEquals(0, i);
         commonVerifications();
-        verifyPreparedStatementPresent(table.getSql("level.create"));
-        verifyPreparedStatementParameter(table.getSql("level.create"), 1, systemName);
+        verifyPreparedStatementPresent(context.getSql("level.create"));
+        verifyPreparedStatementParameter(context.getSql("level.create"), 1, systemName);
 
         // Test-specific setup
         // setup a second system backed by the same database table and verify that it is initialized properly
@@ -436,7 +448,6 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         context2.setDataSource(new ConnectionWrapperDataSource(conn));
         context2.setSystemName(systemName);
         context2.setDatabaseType(new DatabaseType("hsqldb"));
-        PatchTable table2 = new PatchTable(context2);
 
         // clear the exception from above which caused the database table to be created
         handler.clearThrowsSQLException();
@@ -444,15 +455,16 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         handler.clearPreparedStatements();
         // simulate the table existing (since it was created by the first system)
         rs = handler.createResultSet();
-        handler.prepareResultSet(table2.getSql("level.table.exists"), rs, Arrays.asList(systemName));
+        handler.prepareResultSet(context.getSql("level.table.exists"), rs, Arrays.asList(systemName));
         rs = handler.createResultSet();
-        handler.prepareResultSet(table2.getSql("level.read"), rs, Arrays.asList(systemName));
+        handler.prepareResultSet(context.getSql("level.read"), rs, Arrays.asList(systemName));
+        PatchTable table2 = new PatchTable(context2);
 
         i = table2.getPatchLevel();
         assertEquals(0, i);
-        verifyPreparedStatementNotPresent(table2.getSql("patches.create"));
-        verifyPreparedStatementPresent(table2.getSql("level.create"));
-        verifyPreparedStatementParameter(table2.getSql("level.create"), 1, systemName);
+        verifyPreparedStatementNotPresent(context.getSql("patches.create"));
+        verifyPreparedStatementPresent(context.getSql("level.create"));
+        verifyPreparedStatementParameter(context.getSql("level.create"), 1, systemName);
     }
 
     private void commonVerifications()

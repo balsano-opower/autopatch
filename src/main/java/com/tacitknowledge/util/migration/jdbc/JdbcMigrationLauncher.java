@@ -82,6 +82,11 @@ public class JdbcMigrationLauncher implements RollbackListener
     private String migrationStrategy;
 
     /**
+     * A factory for creating new PatchTable instances.
+     */
+    private PatchTableFactory patchTableFactory = new PatchTableFactory();
+
+    /**
      * Create a new MigrationProcess and add a SqlScriptMigrationTaskSource
      */
     public JdbcMigrationLauncher()
@@ -93,7 +98,7 @@ public class JdbcMigrationLauncher implements RollbackListener
      *
      * @param context the <code>JdbcMigrationContext</code> to use.
      */
-    public JdbcMigrationLauncher(JdbcMigrationContext context)
+    public JdbcMigrationLauncher(JdbcMigrationContext context) throws MigrationException
     {
         this();
         addContext(context);
@@ -444,9 +449,9 @@ public class JdbcMigrationLauncher implements RollbackListener
      *
      * @param context the <code>JdbcMigrationContext</code> used for the migrations
      */
-    public void addContext(JdbcMigrationContext context)
+    public void addContext(JdbcMigrationContext context) throws MigrationException
     {
-        PatchInfoStore patchTable = new PatchTable(context);
+        PatchInfoStore patchTable = getPatchTableFactory().createPatchTable(context);
         log.debug("Adding context " + context + " with patch table " + patchTable + " in launcher " + this);
         contexts.put(context, patchTable);
     }
@@ -773,4 +778,8 @@ public class JdbcMigrationLauncher implements RollbackListener
     {
         return migrationStrategy;
     }
+
+    public void setPatchTableFactory(PatchTableFactory patchTableFactory) { this.patchTableFactory = patchTableFactory; }
+
+    public PatchTableFactory getPatchTableFactory() { return patchTableFactory; }
 }

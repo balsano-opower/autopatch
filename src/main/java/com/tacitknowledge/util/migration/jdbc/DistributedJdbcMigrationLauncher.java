@@ -46,7 +46,7 @@ public class DistributedJdbcMigrationLauncher extends JdbcMigrationLauncher
      *
      * @param context the <code>JdbcMigrationContext</code> to use.
      */
-    public DistributedJdbcMigrationLauncher(JdbcMigrationContext context)
+    public DistributedJdbcMigrationLauncher(JdbcMigrationContext context) throws MigrationException
     {
         super(context);
     }

@@ -154,7 +154,7 @@
                         <lineRate>0</lineRate>
                         <haltOnFailure>true</haltOnFailure>
                         <totalBranchRate>64</totalBranchRate>
-                        <totalLineRate>67</totalLineRate>
+                        <totalLineRate>66</totalLineRate>
                         <packageLineRate>30</packageLineRate>
                         <packageBranchRate>42</packageBranchRate>
                     </check>

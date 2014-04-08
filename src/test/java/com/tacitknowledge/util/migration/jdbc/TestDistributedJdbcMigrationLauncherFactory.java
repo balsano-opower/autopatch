@@ -23,6 +23,12 @@ package com.tacitknowledge.util.migration.jdbc;
 public class TestDistributedJdbcMigrationLauncherFactory 
     extends DistributedJdbcMigrationLauncherFactory
 {
+
+    public TestDistributedJdbcMigrationLauncherFactory() {
+        super();
+        this.setJdbcMigrationLauncherFactory(new TestJdbcMigrationLauncherFactory());
+    }
+
     /**
      * Returns TestDataSourceMigrationContext
      * 

@@ -199,7 +199,8 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase {
      */
     public void testSetPostpatchPath() throws Exception {
         String postpatchPath = "com.tacitknowledge.util.migration.tasks.post";
-        TestJdbcMigrationLauncher testLauncher = new TestJdbcMigrationLauncher(context);
+        TestJdbcMigrationLauncher testLauncher = new TestJdbcMigrationLauncher();
+        testLauncher.addContext(context);
         testLauncher.setPostPatchPath(postpatchPath);
         assertEquals(postpatchPath, testLauncher.getPostPatchPath());
     }
@@ -247,7 +248,8 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase {
         mockControl.replay();
         migrationRunnerStrategyControl.replay();
 
-        TestJdbcMigrationLauncher testLauncher = new TestJdbcMigrationLauncher(context);
+        TestJdbcMigrationLauncher testLauncher = new TestJdbcMigrationLauncher();
+        testLauncher.addContext(context);
         testLauncher.getMigrationProcess().setMigrationRunnerStrategy(migrationStrategyMock);
         testLauncher.setLockPollMillis(0);
         testLauncher.setLockPollRetries(4);
@@ -298,7 +300,8 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase {
         patchStore.updatePatchLevel(7);
         patchStore.unlockPatchStore();
 
-        TestJdbcMigrationLauncher testLauncher = new TestJdbcMigrationLauncher(context);
+        TestJdbcMigrationLauncher testLauncher = new TestJdbcMigrationLauncher();
+        testLauncher.addContext(context);
         testLauncher.getMigrationProcess().setMigrationRunnerStrategy(migrationStrategyMock);
         testLauncher.setLockPollMillis(0);
         testLauncher.setLockPollRetries(3);
